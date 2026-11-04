@@ -17,20 +17,22 @@ const ZOOM_LEVELS := [1, 2, 4, 8]
 @onready var follow_camera: Camera2D = $WorldView/World/Grid/Camera2D
 
 var _world_position := Vector2.ZERO
-var _mouse_direction := Vector2i.ZERO
-var _touches: Dictionary = {}
+var _joystick_direction := Vector2.ZERO
+var _joystick_finger := -1
+var _joystick_center := Vector2.ZERO
+var _joystick_radius := 54.0
+var _show_joystick := false
 var _facing_index := 0
 var _zoom_level := 4
 var _ui: Control
 var _header: VBoxContainer
-var _pad: GridContainer
-var _pad_buttons: Array[Button] = []
-var _pad_directions: Array[Vector2i] = []
+var _joystick: Control
 var _status_label: Label
 var _hint: Label
 
 
 func _ready() -> void:
+    _show_joystick = DisplayServer.is_touchscreen_available()
     _build_ui()
     grid.draw.connect(_draw_grid)
     resized.connect(_layout)
@@ -45,31 +47,43 @@ func _notification(what: int) -> void:
 
 
 func _clear_touch() -> void:
-    _touches.clear()
-    _mouse_direction = Vector2i.ZERO
+    _joystick_finger = -1
+    _joystick_direction = Vector2.ZERO
+    if _joystick != null:
+        _joystick.queue_redraw()
 
 
 func _input(event: InputEvent) -> void:
-    # Track fingers separately; release/drag outside a button must stop movement.
-    # Buttons remain standard Godot UI controls, including mouse hold support.
+    if not _show_joystick:
+        return
     if event is InputEventScreenTouch:
-        if not event.pressed or event.canceled:
-            _touches.erase(event.index)
-            if _touches.is_empty():
-                _mouse_direction = Vector2i.ZERO
-        else:
-            var direction := _pad_direction_at(event.position)
-            if direction != Vector2i.ZERO:
-                _touches[event.index] = direction
-    elif event is InputEventScreenDrag and _touches.has(event.index):
-        _touches[event.index] = _pad_direction_at(event.position)
+        if event.pressed:
+            if _joystick_finger == -1 and _joystick.get_global_rect().has_point(event.position):
+                _joystick_finger = event.index
+                _update_joystick(event.position)
+                get_viewport().set_input_as_handled()
+        elif event.index == _joystick_finger:
+            _clear_touch()
+            get_viewport().set_input_as_handled()
+    elif event is InputEventScreenDrag and event.index == _joystick_finger:
+        _update_joystick(event.position)
+        get_viewport().set_input_as_handled()
 
 
-func _pad_direction_at(point: Vector2) -> Vector2i:
-    for index in _pad_buttons.size():
-        if _pad_buttons[index].get_global_rect().has_point(point):
-            return _pad_directions[index]
-    return Vector2i.ZERO
+func _update_joystick(screen_position: Vector2) -> void:
+    var local := _joystick.get_global_transform_with_canvas().affine_inverse() * screen_position
+    var offset := local - _joystick_center
+    # Dead zone prevents unintended movement when resting a thumb on the center.
+    _joystick_direction = Vector2.ZERO if offset.length() < 12.0 else offset.limit_length(_joystick_radius) / _joystick_radius
+    _joystick.queue_redraw()
+
+
+func _draw_joystick() -> void:
+    if not _show_joystick:
+        return
+    _joystick.draw_circle(_joystick_center, _joystick_radius + 13.0, Color(0.08, 0.12, 0.16, 0.55))
+    _joystick.draw_arc(_joystick_center, _joystick_radius + 13.0, 0.0, TAU, 64, Color(0.68, 0.78, 0.84, 0.65), 2.0, true)
+    _joystick.draw_circle(_joystick_center + _joystick_direction * _joystick_radius, 25.0, Color(0.58, 0.75, 0.86, 0.85))
 
 
 func _movement_direction() -> Vector2:
@@ -82,10 +96,8 @@ func _movement_direction() -> Vector2:
         direction.y -= 1.0
     if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_S):
         direction.y += 1.0
-    if not _touches.is_empty():
-        direction = Vector2(_touches.values().back())
-    elif _mouse_direction != Vector2i.ZERO:
-        direction = Vector2(_mouse_direction)
+    if _joystick_finger != -1:
+        return _joystick_direction
     return direction.normalized()
 
 
@@ -130,7 +142,7 @@ func _refresh_status() -> void:
         ]
     if _hint != null:
         var cropped := world.size.x < 48 * _zoom_level or world.size.y < 64 * _zoom_level
-        _hint.text = "Кадр частково поза вікном — збільште вікно або зменште масштаб." if cropped else "WASD / стрілки або утримуйте кнопки руху. Параметри тестові."
+        _hint.text = "Кадр частково поза вікном — зменште масштаб." if cropped else ("Рух: сенсорний джойстик. Параметри тестові." if _show_joystick else "Рух: WASD / стрілки. Параметри тестові.")
 
 
 func _draw_grid() -> void:
@@ -179,45 +191,19 @@ func _build_ui() -> void:
     toolbar.add_child(turn)
     turn.pressed.connect(_next_facing)
 
-    _pad = GridContainer.new()
-    _pad.columns = 3
-    _pad.add_theme_constant_override("h_separation", 4)
-    _pad.add_theme_constant_override("v_separation", 4)
-    _ui.add_child(_pad)
-    for direction in [
-        Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1),
-        Vector2i(-1, 0), Vector2i.ZERO, Vector2i(1, 0),
-        Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)
-    ]:
-        if direction == Vector2i.ZERO:
-            var center := Label.new()
-            center.text = "РУХ"
-            center.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-            center.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-            _pad.add_child(center)
-            continue
-        var button := _make_button(DIRECTION_NAMES[DIRECTIONS.find(direction)], Vector2(52, 52))
-        _pad.add_child(button)
-        _pad_buttons.append(button)
-        _pad_directions.append(direction)
-        button.button_down.connect(_mouse_pressed.bind(direction))
-        button.button_up.connect(_mouse_released.bind(direction))
+    if _show_joystick:
+        _joystick = Control.new()
+        _joystick.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        _joystick.custom_minimum_size = Vector2(156, 156)
+        _joystick_center = Vector2(78, 78)
+        _ui.add_child(_joystick)
+        _joystick.draw.connect(_draw_joystick)
 
     _hint = Label.new()
     _hint.add_theme_font_size_override("font_size", 13)
     _hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     _hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
     _ui.add_child(_hint)
-
-
-func _mouse_pressed(direction: Vector2i) -> void:
-    _mouse_direction = direction
-    _set_facing(Vector2(direction))
-
-
-func _mouse_released(direction: Vector2i) -> void:
-    if _mouse_direction == direction:
-        _mouse_direction = Vector2i.ZERO
 
 
 func _layout() -> void:
@@ -231,24 +217,28 @@ func _layout() -> void:
     _ui.size = logical_size
     var margin := 6.0
     var header_height := ceilf(_header.get_combined_minimum_size().y) + margin * 2.0
-    var pad_size := Vector2(164, 164)
+    var pad_size := Vector2(156, 156) if _show_joystick else Vector2.ZERO
     _header.position = Vector2(margin, margin)
     _header.size = Vector2(logical_size.x - margin * 2.0, header_height - margin)
     var area: Rect2
     if logical_size.x > logical_size.y:
-        _pad.position = Vector2(margin, header_height)
-        _pad.size = pad_size
-        _hint.position = Vector2(margin, header_height + pad_size.y + margin)
-        _hint.size = Vector2(pad_size.x, maxf(0.0, logical_size.y - _hint.position.y - margin))
-        area = Rect2(pad_size.x + margin * 2.0, header_height,
-            maxf(1.0, logical_size.x - pad_size.x - margin * 3.0), maxf(1.0, logical_size.y - header_height - margin))
+        if _show_joystick:
+            _joystick.position = Vector2(margin, maxf(header_height, logical_size.y - pad_size.y - margin))
+            _joystick.size = pad_size
+        _hint.position = Vector2(margin, header_height)
+        _hint.size = Vector2(maxf(1.0, logical_size.x - margin * 2.0), 34)
+        var side_width := pad_size.x + margin * 2.0 if _show_joystick else margin
+        area = Rect2(side_width, header_height + 36.0,
+            maxf(1.0, logical_size.x - side_width - margin), maxf(1.0, logical_size.y - header_height - 42.0))
     else:
-        _pad.position = Vector2(margin, logical_size.y - pad_size.y - margin)
-        _pad.size = pad_size
-        _hint.position = Vector2(pad_size.x + margin * 2.0, _pad.position.y)
-        _hint.size = Vector2(maxf(1.0, logical_size.x - _hint.position.x - margin), pad_size.y)
+        if _show_joystick:
+            _joystick.position = Vector2(margin, logical_size.y - pad_size.y - margin)
+            _joystick.size = pad_size
+        _hint.position = Vector2(pad_size.x + margin * 2.0 if _show_joystick else margin,
+            logical_size.y - 70.0)
+        _hint.size = Vector2(maxf(1.0, logical_size.x - _hint.position.x - margin), 64)
         area = Rect2(margin, header_height, maxf(1.0, logical_size.x - margin * 2.0),
-            maxf(1.0, _pad.position.y - header_height - margin))
+            maxf(1.0, logical_size.y - header_height - (pad_size.y + margin * 2.0 if _show_joystick else 12.0)))
     # Native-sized render target: no viewport stretch, texture scaling or CSS shell.
     world_view.position = (area.position * ui_scale).round()
     world.size = Vector2i((area.size * ui_scale).floor())
