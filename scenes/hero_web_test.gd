@@ -1,41 +1,76 @@
-extends Node2D
+extends Control
 
-# Approved sprite atlas: eight 48x64 frames ordered S, SE, E, NE, N, NW, W, SW.
-const TILE_SIZE: int = 32
-const GRID_RADIUS: int = 64
-const WALK_SPEED: float = 100.0
+# RF-DEV-001: these dimensions and speed are test parameters, not game balance.
+const TILE_SIZE := 32
+const WALK_SPEED := 100.0
 const DIRECTION_NAMES := ["S", "SE", "E", "NE", "N", "NW", "W", "SW"]
+const DIRECTIONS := [
+    Vector2i(0, 1), Vector2i(1, 1), Vector2i(1, 0), Vector2i(1, -1),
+    Vector2i(0, -1), Vector2i(-1, -1), Vector2i(-1, 0), Vector2i(-1, 1)
+]
+const ZOOM_LEVELS := [1, 2, 4, 8]
 
-@onready var hero: Sprite2D = $Hero
-@onready var follow_camera: Camera2D = $Camera2D
+@onready var world_view: SubViewportContainer = $WorldView
+@onready var world: SubViewport = $WorldView/World
+@onready var grid: Node2D = $WorldView/World/Grid
+@onready var hero: Sprite2D = $WorldView/World/Grid/Hero
+@onready var follow_camera: Camera2D = $WorldView/World/Grid/Camera2D
 
 var _world_position := Vector2.ZERO
-var _touch_direction := Vector2i.ZERO
-var _facing_index: int = 0
-var _zoom_level: int = 4
+var _mouse_direction := Vector2i.ZERO
+var _touches: Dictionary = {}
+var _facing_index := 0
+var _zoom_level := 4
+var _header: VBoxContainer
+var _pad: GridContainer
+var _pad_buttons: Array[Button] = []
+var _pad_directions: Array[Vector2i] = []
 var _status_label: Label
+var _hint: Label
 
 
 func _ready() -> void:
-    follow_camera.make_current()
     _build_ui()
+    grid.draw.connect(_draw_grid)
+    resized.connect(_layout)
+    _layout()
     _set_zoom(4)
-    _refresh_status()
+    follow_camera.make_current()
 
 
-func _draw() -> void:
-    var border: float = float(GRID_RADIUS * TILE_SIZE)
-    draw_rect(Rect2(-border, -border, border * 2.0, border * 2.0), Color(0.09, 0.14, 0.17))
-    var grid_color := Color(0.19, 0.25, 0.27, 0.7)
-    for index in range(-GRID_RADIUS, GRID_RADIUS + 1):
-        var coordinate: float = float(index * TILE_SIZE)
-        draw_line(Vector2(coordinate, -border), Vector2(coordinate, border), grid_color, 1.0, false)
-        draw_line(Vector2(-border, coordinate), Vector2(border, coordinate), grid_color, 1.0, false)
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+        _clear_touch()
 
 
-func _physics_process(delta: float) -> void:
+func _clear_touch() -> void:
+    _touches.clear()
+    _mouse_direction = Vector2i.ZERO
+
+
+func _input(event: InputEvent) -> void:
+    # Track fingers separately; release/drag outside a button must stop movement.
+    # Buttons remain standard Godot UI controls, including mouse hold support.
+    if event is InputEventScreenTouch:
+        if not event.pressed or event.canceled:
+            _touches.erase(event.index)
+        else:
+            var direction := _pad_direction_at(event.position)
+            if direction != Vector2i.ZERO:
+                _touches[event.index] = direction
+    elif event is InputEventScreenDrag and _touches.has(event.index):
+        _touches[event.index] = _pad_direction_at(event.position)
+
+
+func _pad_direction_at(point: Vector2) -> Vector2i:
+    for index in _pad_buttons.size():
+        if _pad_buttons[index].get_global_rect().has_point(point):
+            return _pad_directions[index]
+    return Vector2i.ZERO
+
+
+func _movement_direction() -> Vector2:
     var direction := Vector2.ZERO
-
     if Input.is_key_pressed(KEY_LEFT) or Input.is_physical_key_pressed(KEY_A):
         direction.x -= 1.0
     if Input.is_key_pressed(KEY_RIGHT) or Input.is_physical_key_pressed(KEY_D):
@@ -44,154 +79,168 @@ func _physics_process(delta: float) -> void:
         direction.y -= 1.0
     if Input.is_key_pressed(KEY_DOWN) or Input.is_physical_key_pressed(KEY_S):
         direction.y += 1.0
+    if not _touches.is_empty():
+        direction = Vector2(_touches.values().back())
+    elif _mouse_direction != Vector2i.ZERO:
+        direction = Vector2(_mouse_direction)
+    return direction.normalized()
 
-    if _touch_direction != Vector2i.ZERO:
-        direction = Vector2(_touch_direction)
 
+func _physics_process(delta: float) -> void:
+    var direction := _movement_direction()
     if direction.is_zero_approx():
         return
-
-    direction = direction.normalized()
     _world_position += direction * WALK_SPEED * delta
     hero.position = _world_position.round()
-    follow_camera.position = hero.position
+    # Center the complete 48x64 frame, preserving the approved (24, 62) foot anchor.
+    follow_camera.position = hero.position + Vector2(0, -30)
     _set_facing(direction)
+    grid.queue_redraw()
 
 
 func _set_facing(direction: Vector2) -> void:
-    var x: int = -1 if direction.x < -0.2 else (1 if direction.x > 0.2 else 0)
-    var y: int = -1 if direction.y < -0.2 else (1 if direction.y > 0.2 else 0)
-
-    var new_frame: int = 0
-    if y > 0:
-        new_frame = 7 if x < 0 else (1 if x > 0 else 0)
-    elif y < 0:
-        new_frame = 5 if x < 0 else (3 if x > 0 else 4)
-    elif x < 0:
-        new_frame = 6
-    elif x > 0:
-        new_frame = 2
-
-    if new_frame != _facing_index:
-        _facing_index = new_frame
-        hero.frame = new_frame
+    var discrete := Vector2i(int(signf(direction.x)), int(signf(direction.y)))
+    var frame_index := DIRECTIONS.find(discrete)
+    if frame_index >= 0:
+        _facing_index = frame_index
+        hero.frame = frame_index
         _refresh_status()
 
 
+func _next_facing() -> void:
+    _set_facing(Vector2(DIRECTIONS[(_facing_index + 1) % 8]))
+
+
 func _set_zoom(level: int) -> void:
+    if level not in ZOOM_LEVELS:
+        return
     _zoom_level = level
-    follow_camera.zoom = Vector2(float(level), float(level))
+    follow_camera.zoom = Vector2.ONE * level
     _refresh_status()
+    grid.queue_redraw()
 
 
 func _refresh_status() -> void:
     if _status_label != null:
-        _status_label.text = "Direction: %s   Zoom: x%d" % [DIRECTION_NAMES[_facing_index], _zoom_level]
+        _status_label.text = "Напрямок: %s   Масштаб: ×%d   Сітка: 32×32 (тест)" % [
+            DIRECTION_NAMES[_facing_index], _zoom_level
+        ]
+    if _hint != null:
+        var cropped := world.size.x < 48 * _zoom_level or world.size.y < 64 * _zoom_level
+        _hint.text = "Кадр частково поза вікном — збільште вікно або зменште масштаб." if cropped else "WASD / стрілки або утримуйте кнопки руху. Параметри тестові."
 
 
-func _on_touch_pressed(direction: Vector2i) -> void:
-    _touch_direction = direction
-    _set_facing(Vector2(direction))
+func _draw_grid() -> void:
+    var view_size := Vector2(world.size) / follow_camera.zoom
+    var bounds := Rect2(follow_camera.position - view_size / 2.0, view_size)
+    var first := Vector2i((bounds.position / TILE_SIZE).floor()) - Vector2i.ONE
+    var last := Vector2i((bounds.end / TILE_SIZE).ceil()) + Vector2i.ONE
+    var color := Color(0.23, 0.28, 0.30)
+    for x in range(first.x, last.x + 1):
+        grid.draw_line(Vector2(x * TILE_SIZE, first.y * TILE_SIZE),
+            Vector2(x * TILE_SIZE, last.y * TILE_SIZE), color, 1.0, false)
+    for y in range(first.y, last.y + 1):
+        grid.draw_line(Vector2(first.x * TILE_SIZE, y * TILE_SIZE),
+            Vector2(last.x * TILE_SIZE, y * TILE_SIZE), color, 1.0, false)
 
 
-func _on_touch_released(direction: Vector2i) -> void:
-    if _touch_direction == direction:
-        _touch_direction = Vector2i.ZERO
-
-
-func _make_button(caption: String, size: Vector2) -> Button:
+func _make_button(caption: String, minimum: Vector2) -> Button:
     var button := Button.new()
     button.text = caption
-    button.custom_minimum_size = size
+    button.custom_minimum_size = minimum
     button.focus_mode = Control.FOCUS_NONE
-    button.add_theme_font_size_override("font_size", 17)
+    button.add_theme_font_size_override("font_size", 16)
     return button
 
 
 func _build_ui() -> void:
-    var canvas := CanvasLayer.new()
-    add_child(canvas)
-
-    var overlay := Control.new()
-    canvas.add_child(overlay)
-    overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-    var header := PanelContainer.new()
-    overlay.add_child(header)
-    header.anchor_left = 0.0
-    header.anchor_right = 0.0
-    header.anchor_top = 0.0
-    header.anchor_bottom = 0.0
-    header.offset_left = 12.0
-    header.offset_top = 12.0
-    header.offset_right = 285.0
-    header.offset_bottom = 76.0
-
-    var header_content := VBoxContainer.new()
-    header.add_child(header_content)
-    var heading := Label.new()
-    heading.text = "RISKFATE - SPRITE TEST"
-    heading.add_theme_font_size_override("font_size", 15)
-    header_content.add_child(heading)
-
+    _header = VBoxContainer.new()
+    add_child(_header)
+    var title := Label.new()
+    title.text = "RISKFATE · RF-DEV-001"
+    title.add_theme_font_size_override("font_size", 16)
+    _header.add_child(title)
     _status_label = Label.new()
-    _status_label.add_theme_font_size_override("font_size", 14)
-    header_content.add_child(_status_label)
+    _status_label.add_theme_font_size_override("font_size", 13)
+    _header.add_child(_status_label)
+    var toolbar := HBoxContainer.new()
+    _header.add_child(toolbar)
+    for level in ZOOM_LEVELS:
+        var button := _make_button("×%d" % level, Vector2(48, 48))
+        toolbar.add_child(button)
+        button.pressed.connect(_set_zoom.bind(level))
+    var turn := _make_button("Ракурс ↻", Vector2(100, 48))
+    toolbar.add_child(turn)
+    turn.pressed.connect(_next_facing)
 
-    var zoom_controls := VBoxContainer.new()
-    overlay.add_child(zoom_controls)
-    zoom_controls.anchor_left = 1.0
-    zoom_controls.anchor_right = 1.0
-    zoom_controls.anchor_top = 0.0
-    zoom_controls.anchor_bottom = 0.0
-    zoom_controls.offset_left = -98.0
-    zoom_controls.offset_right = -12.0
-    zoom_controls.offset_top = 12.0
-    zoom_controls.offset_bottom = 245.0
-
-    var zoom_heading := Label.new()
-    zoom_heading.text = "ZOOM"
-    zoom_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    zoom_controls.add_child(zoom_heading)
-
-    for value in [1, 2, 4, 8]:
-        var zoom_button := _make_button("x%d" % value, Vector2(84.0, 43.0))
-        zoom_controls.add_child(zoom_button)
-        zoom_button.pressed.connect(_set_zoom.bind(value))
-
-    var controls := GridContainer.new()
-    controls.columns = 3
-    controls.add_theme_constant_override("h_separation", 5)
-    controls.add_theme_constant_override("v_separation", 5)
-    overlay.add_child(controls)
-    controls.anchor_left = 0.0
-    controls.anchor_right = 0.0
-    controls.anchor_top = 1.0
-    controls.anchor_bottom = 1.0
-    controls.offset_left = 12.0
-    controls.offset_right = 217.0
-    controls.offset_top = -194.0
-    controls.offset_bottom = -12.0
-
-    var labels := ["NW", "N", "NE", "W", "", "E", "SW", "S", "SE"]
-    var directions := [
+    _pad = GridContainer.new()
+    _pad.columns = 3
+    _pad.add_theme_constant_override("h_separation", 4)
+    _pad.add_theme_constant_override("v_separation", 4)
+    add_child(_pad)
+    for direction in [
         Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1),
         Vector2i(-1, 0), Vector2i.ZERO, Vector2i(1, 0),
         Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)
-    ]
-
-    for index in range(labels.size()):
-        if index == 4:
+    ]:
+        if direction == Vector2i.ZERO:
             var center := Label.new()
-            center.text = "MOVE"
+            center.text = "РУХ"
             center.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
             center.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-            center.custom_minimum_size = Vector2(62.0, 54.0)
-            controls.add_child(center)
+            _pad.add_child(center)
             continue
+        var button := _make_button(DIRECTION_NAMES[DIRECTIONS.find(direction)], Vector2(52, 52))
+        _pad.add_child(button)
+        _pad_buttons.append(button)
+        _pad_directions.append(direction)
+        button.button_down.connect(_mouse_pressed.bind(direction))
+        button.button_up.connect(_mouse_released.bind(direction))
 
-        var pad := _make_button(labels[index], Vector2(62.0, 54.0))
-        controls.add_child(pad)
-        pad.button_down.connect(_on_touch_pressed.bind(directions[index]))
-        pad.button_up.connect(_on_touch_released.bind(directions[index]))
+    _hint = Label.new()
+    _hint.add_theme_font_size_override("font_size", 13)
+    _hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    _hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(_hint)
+
+
+func _mouse_pressed(direction: Vector2i) -> void:
+    _mouse_direction = direction
+    _set_facing(Vector2(direction))
+
+
+func _mouse_released(direction: Vector2i) -> void:
+    if _mouse_direction == direction:
+        _mouse_direction = Vector2i.ZERO
+
+
+func _layout() -> void:
+    if _header == null:
+        return
+    _clear_touch()
+    var margin := 8.0
+    var header_height := 104.0
+    var pad_size := Vector2(164, 164)
+    _header.position = Vector2(margin, margin)
+    _header.size = Vector2(size.x - margin * 2.0, header_height - margin)
+    var area: Rect2
+    if size.x > size.y:
+        _pad.position = Vector2(margin, header_height)
+        _pad.size = pad_size
+        _hint.position = Vector2(margin, header_height + pad_size.y + margin)
+        _hint.size = Vector2(pad_size.x, maxf(0.0, size.y - _hint.position.y - margin))
+        area = Rect2(pad_size.x + margin * 2.0, header_height,
+            maxf(1.0, size.x - pad_size.x - margin * 3.0), maxf(1.0, size.y - header_height - margin))
+    else:
+        _pad.position = Vector2(margin, size.y - pad_size.y - margin)
+        _pad.size = pad_size
+        _hint.position = Vector2(pad_size.x + margin * 2.0, _pad.position.y)
+        _hint.size = Vector2(maxf(1.0, size.x - _hint.position.x - margin), pad_size.y)
+        area = Rect2(margin, header_height, maxf(1.0, size.x - margin * 2.0),
+            maxf(1.0, _pad.position.y - header_height - margin))
+    # Native-sized render target: no viewport stretch, texture scaling or CSS shell.
+    world_view.position = area.position.round()
+    world.size = Vector2i(area.size.floor())
+    world_view.size = area.size.floor()
+    _refresh_status()
+    grid.queue_redraw()

@@ -9,6 +9,7 @@ on:
       - 'scenes/**'
       - 'characters/**'
       - '.github/workflows/godot-web.yml'
+      - '.github/scripts/**'
   workflow_dispatch:
 
 permissions:
@@ -23,6 +24,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout official repository
         uses: actions/checkout@v4
@@ -36,9 +38,11 @@ jobs:
           BASE="https://github.com/godotengine/godot-builds/releases/download/${TAG}"
           mkdir -p /tmp/riskfate-godot/editor /tmp/riskfate-godot/templates
           curl --fail --location --retry 3 "${BASE}/Godot_v${TAG}_linux.x86_64.zip" -o /tmp/riskfate-godot/editor.zip
+          echo "cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  /tmp/riskfate-godot/editor.zip" | sha256sum --check
           unzip -q /tmp/riskfate-godot/editor.zip -d /tmp/riskfate-godot/editor
           sudo install -m 755 "/tmp/riskfate-godot/editor/Godot_v${TAG}_linux.x86_64" /usr/local/bin/godot
           curl --fail --location --retry 3 "${BASE}/Godot_v${TAG}_export_templates.tpz" -o /tmp/riskfate-godot/templates.tpz
+          echo "f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  /tmp/riskfate-godot/templates.tpz" | sha256sum --check
           unzip -q /tmp/riskfate-godot/templates.tpz -d /tmp/riskfate-godot/templates
           mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
           cp -a /tmp/riskfate-godot/templates/templates/. "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
@@ -48,8 +52,19 @@ jobs:
       - name: Import source assets
         run: godot --headless --path . --import
 
-      - name: Parse scene and run smoke test
-        run: godot --headless --path . --quit-after 6
+      - name: Check atlas, directions, movement, touch and responsive layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --script res://scenes/hero_web_test_check.gd 2>&1 | tee /tmp/riskfate-checks.log
+          if grep -E 'SCRIPT ERROR:|ERROR:' /tmp/riskfate-checks.log; then exit 1; fi
+
+      - name: Run main scene smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --quit-after 6 2>&1 | tee /tmp/riskfate-scene.log
+          if grep -E 'SCRIPT ERROR:|ERROR:' /tmp/riskfate-scene.log; then exit 1; fi
 
       - name: Export HTML5
         shell: bash
@@ -70,13 +85,29 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Deploy web build
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify published files and run Chrome browser checks
+        env:
+          RISKFATE_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: node .github/scripts/check-web.mjs "$RISKFATE_PAGE_URL"
+
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riskfate-browser-check
+          path: /tmp/riskfate-browser-check
+          if-no-files-found: ignore

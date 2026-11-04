@@ -10,13 +10,18 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 
 window/size/viewport_width=480
 window/size/viewport_height=800
-window/stretch/mode="viewport"
-window/stretch/scale_mode="integer"
-window/stretch/aspect="expand"
+window/stretch/mode="disabled"
+window/handheld/orientation=6
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
 textures/canvas_textures/default_texture_filter=0
-environment/defaults/default_clear_color=Color(0.078, 0.101, 0.129, 1)
+environment/defaults/default_clear_color=Color(0.09, 0.12, 0.14, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=true
