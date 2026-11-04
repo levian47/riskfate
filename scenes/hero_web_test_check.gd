@@ -21,6 +21,7 @@ func _key(code: Key, down: bool) -> void:
     event.physical_keycode = code
     event.pressed = down
     Input.parse_input_event(event)
+    Input.flush_buffered_events()
 
 
 func _touch(scene: Control, index: int, point: Vector2, down: bool) -> void:
