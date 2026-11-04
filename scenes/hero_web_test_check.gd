@@ -75,49 +75,63 @@ func _run() -> void:
     _check(scene.hero.frame == 3, "W+D selects NE")
     _check(scene.hero.position == scene.hero.position.round(), "integer sprite placement")
 
+    # Headless CI has no touchscreen. Verify desktop layout first, then emulate
+    # touchscreen availability without changing keyboard bindings.
+    _check(not scene._show_joystick and scene._joystick == null, "desktop hides touch joystick")
+    for window_size in [Vector2i(360, 640), Vector2i(640, 360)]:
+        root.size = window_size
+        scene.size = Vector2(window_size)
+        scene._layout()
+        await process_frame
+        _check(not scene.world_view.get_global_rect().intersects(scene._header.get_global_rect()),
+            "desktop header outside world at " + str(window_size))
+        _check(scene.world.size == Vector2i(scene.world_view.size) and not scene.world_view.stretch,
+            "desktop native render target at " + str(window_size))
+
+    scene._show_joystick = true
+    scene._joystick = Control.new()
+    scene._joystick.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    scene._joystick.custom_minimum_size = Vector2(156, 156)
+    scene._joystick_center = Vector2(78, 78)
+    scene._ui.add_child(scene._joystick)
+    scene._joystick.draw.connect(scene._draw_joystick)
+
     for window_size in [Vector2i(360, 640), Vector2i(640, 360), Vector2i(480, 800), Vector2i(1280, 720)]:
         root.size = window_size
         scene.size = Vector2(window_size)
         scene._layout()
         await process_frame
         var view: Rect2 = scene.world_view.get_global_rect()
-        _check(not view.intersects(scene._pad.get_global_rect()), "pad outside world at " + str(window_size))
+        _check(not view.intersects(scene._joystick.get_global_rect()), "joystick outside world at " + str(window_size))
         _check(not view.intersects(scene._header.get_global_rect()), "header outside world at " + str(window_size))
         _check(scene.world.size == Vector2i(scene.world_view.size) and not scene.world_view.stretch,
             "native render target at " + str(window_size))
         for level in scene.ZOOM_LEVELS:
             scene._set_zoom(level)
             _check(scene.follow_camera.zoom == Vector2.ONE * level, "integer camera scale " + str(level))
-        for index in scene._pad_buttons.size():
-            var button: Button = scene._pad_buttons[index]
-            _check(button.size.x >= 52 and button.size.y >= 52, "finger-sized button")
-            _touch(scene, 0, button.get_global_rect().get_center(), true)
-            var direction: Vector2 = scene._movement_direction()
-            _check(direction.is_equal_approx(Vector2(scene._pad_directions[index]).normalized()), "touch maps to " + button.text)
-            scene._physics_process(0.1)
-            _touch(scene, 0, Vector2(-10, -10), false)
-            _check(scene._movement_direction() == Vector2.ZERO, "release outside stops touch movement")
-        var first: Vector2 = scene._pad_buttons[0].get_global_rect().get_center()
-        _touch(scene, 0, first, true)
-        _touch(scene, 1, scene._pad_buttons[1].get_global_rect().get_center(), true)
-        _touch(scene, 0, first, false)
-        _check(not scene._movement_direction().is_zero_approx(), "one released finger preserves the other")
-        var drag := InputEventScreenDrag.new()
-        drag.index = 1
-        drag.position = Vector2(-10, -10)
-        scene._input(drag)
-        _check(scene._movement_direction() == Vector2.ZERO, "drag off pad stops movement")
-        var cancel := InputEventScreenTouch.new()
-        cancel.index = 1
-        cancel.position = first
-        cancel.canceled = true
-        scene._mouse_pressed(scene._pad_directions[0])
-        scene._input(cancel)
-        _check(scene._movement_direction() == Vector2.ZERO, "canceled touch clears emulated mouse hold")
-        _touch(scene, 0, first, true)
-        scene._notification(Control.NOTIFICATION_APPLICATION_FOCUS_OUT)
-        _check(scene._touches.is_empty(), "focus loss clears held touches")
 
+        var center: Vector2 = scene._joystick.get_global_rect().get_center()
+        _touch(scene, 0, center, true)
+        _check(scene._movement_direction() == Vector2.ZERO, "joystick dead zone prevents drift")
+        var right: Vector2 = center + Vector2(54, 0)
+        var drag := InputEventScreenDrag.new()
+        drag.index = 0
+        drag.position = right
+        scene._input(drag)
+        _check(scene._movement_direction().is_equal_approx(Vector2.RIGHT), "joystick full right")
+        drag.position = center + Vector2(0, -27)
+        scene._input(drag)
+        _check(is_equal_approx(scene._movement_direction().length(), 0.5), "joystick proportional speed")
+        _check(scene._movement_direction().y < 0.0, "joystick moves north")
+        _touch(scene, 1, center + Vector2(54, 0), true)
+        _touch(scene, 1, center + Vector2(54, 0), false)
+        _check(scene._joystick_finger == 0, "second finger does not steal joystick")
+        _touch(scene, 0, Vector2(-10, -10), false)
+        _check(scene._movement_direction() == Vector2.ZERO, "release outside stops movement")
+        _touch(scene, 0, center + Vector2(54, 0), true)
+        scene._notification(Control.NOTIFICATION_APPLICATION_FOCUS_OUT)
+        _check(scene._joystick_finger == -1 and scene._movement_direction() == Vector2.ZERO,
+            "focus loss clears joystick")
     scene.queue_free()
     await process_frame
     print("RF-DEV-001 checks complete; failures: ", _failures)
