@@ -107,6 +107,14 @@ func _run() -> void:
         drag.position = Vector2(-10, -10)
         scene._input(drag)
         _check(scene._movement_direction() == Vector2.ZERO, "drag off pad stops movement")
+        var cancel := InputEventScreenTouch.new()
+        cancel.index = 1
+        cancel.position = first
+        cancel.canceled = true
+        scene._mouse_pressed(scene._pad_directions[0])
+        scene._input(cancel)
+        _check(scene._movement_direction() == Vector2.ZERO, "canceled touch clears emulated mouse hold")
+        _touch(scene, 0, first, true)
         scene._notification(Control.NOTIFICATION_APPLICATION_FOCUS_OUT)
         _check(scene._touches.is_empty(), "focus loss clears held touches")
 

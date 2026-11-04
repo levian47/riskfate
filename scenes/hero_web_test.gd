@@ -55,6 +55,8 @@ func _input(event: InputEvent) -> void:
     if event is InputEventScreenTouch:
         if not event.pressed or event.canceled:
             _touches.erase(event.index)
+            if _touches.is_empty():
+                _mouse_direction = Vector2i.ZERO
         else:
             var direction := _pad_direction_at(event.position)
             if direction != Vector2i.ZERO:

@@ -2,6 +2,7 @@
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 
 const url = process.argv[2];
 assert(url?.startsWith('https://levian47.github.io/riskfate/') || url === 'http://127.0.0.1:8000/');
@@ -70,17 +71,20 @@ try {
     assert(!result.exceptionDetails, JSON.stringify(result.exceptionDetails));
     return result.result.value;
   }
-  async function screenshot(name) {
+  async function screenshot(name, inline = false) {
     await pause(200);
     const { data } = await call('Page.captureScreenshot', { format: 'png' });
     if (name) await writeFile(output + '/' + name + '.png', Buffer.from(data, 'base64'));
-    return data;
+    if (name === 'cycled') console.log('RF_CYCLED_SCREENSHOT_BASE64:' + data);
+    return inline ? data : createHash('sha256').update(Buffer.from(data, 'base64')).digest('hex');
   }
   async function tap(x, y) {
     await call('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
     await pause(80);
     await call('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await pause(150);
+    await call('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 0, y: 0 });
+    await pause(80);
   }
   await call('Page.enable');
   await call('Runtime.enable');
@@ -99,11 +103,11 @@ try {
   console.log('PASS: Godot loaded in Chrome using the official shell without cross-origin isolation');
 
   // At DPR 1 the world and UI use native canvas pixels. Cycle directions at rest.
-  const initial = await screenshot();
+  const initial = await screenshot('initial');
   await tap(256, 80);
   assert.notEqual(await screenshot(), initial, 'stationary direction button changes frame');
   for (let index = 0; index < 7; index++) await tap(256, 80);
-  assert.equal(await screenshot(), initial, 'eight stationary turns return to original frame');
+  assert.equal(await screenshot('cycled'), initial, 'eight stationary turns return to original frame');
 
   // Exercise held touch, off-pad drag, release, and held keyboard.
   const movingStart = await screenshot();
@@ -136,7 +140,7 @@ try {
   await call('Emulation.setDeviceMetricsOverride', { width: 480, height: 800, deviceScaleFactor: 1, mobile: true });
   await pause(300);
   await tap(136, 80);
-  console.log('RF_SCREENSHOT_BASE64:' + await screenshot('review'));
+  console.log('RF_SCREENSHOT_BASE64:' + await screenshot('review', true));
   console.log('PASS: no browser runtime errors. Emulation is not an Android device test.');
 } finally {
   socket?.close();
