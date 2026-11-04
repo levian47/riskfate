@@ -14,3 +14,16 @@
 | [PLANNING_FOUNDATION.md](PLANNING_FOUNDATION.md) | Технічні принципи та теми, які потрібно погодити перед реалізацією |
 
 **Джерело правди:** [levian47/riskfate](https://github.com/levian47/riskfate). Рішення власника відокремлюються від пропозицій; ігрові та технічні зміни виконуються лише в погоджених межах.
+
+## Браузерний тест спрайтів
+
+Для першого тесту затверджено **Godot 4.7.2 Stable (Standard)**, **GDScript**, **Compatibility Renderer** і Web-експорт **без потоків**. Версію рушія та export templates зафіксовано в [GitHub Actions](.github/workflows/godot-web.yml).
+
+- Стартова сцена: `scenes/hero_web_test.tscn`.
+- Ігрова текстура: `characters/player/base_hero/hero_8dir.png` — точна копія затвердженого атласу; контрольний аркуш із `assets_source/` у грі не використовується.
+- Переміщення: WASD/стрілки або сенсорні кнопки восьми напрямків; масштаб: x1/x2/x4/x8; фільтрація Nearest.
+- Публікація за умови активованого GitHub Pages (Settings → Pages → Build and deployment → Source: GitHub Actions): https://levian47.github.io/riskfate/
+- Web-збірку створює workflow у GitHub Actions; `dist/` не комітиться. Якщо Pages ще не увімкнено, посилання може бути недоступним.
+- Локальна перевірка за наявності Godot 4.7.2: `godot --headless --path . --import`, `godot --path .`, Web-експорт: `godot --headless --path . --export-release Web dist/index.html` (за встановлених відповідних export templates).
+
+Це перевірка зовнішнього вигляду та масштабу; анімації, онлайн-системи й інші механіки не реалізовані.

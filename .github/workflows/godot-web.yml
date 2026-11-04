@@ -1,0 +1,82 @@
+name: Build and deploy Riskfate Web test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'scenes/**'
+      - 'characters/**'
+      - '.github/workflows/godot-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: riskfate-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout official repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7.2 Standard and matching export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="4.7.2"
+          TAG="${VERSION}-stable"
+          BASE="https://github.com/godotengine/godot-builds/releases/download/${TAG}"
+          mkdir -p /tmp/riskfate-godot/editor /tmp/riskfate-godot/templates
+          curl --fail --location --retry 3 "${BASE}/Godot_v${TAG}_linux.x86_64.zip" -o /tmp/riskfate-godot/editor.zip
+          unzip -q /tmp/riskfate-godot/editor.zip -d /tmp/riskfate-godot/editor
+          sudo install -m 755 "/tmp/riskfate-godot/editor/Godot_v${TAG}_linux.x86_64" /usr/local/bin/godot
+          curl --fail --location --retry 3 "${BASE}/Godot_v${TAG}_export_templates.tpz" -o /tmp/riskfate-godot/templates.tpz
+          unzip -q /tmp/riskfate-godot/templates.tpz -d /tmp/riskfate-godot/templates
+          mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
+          cp -a /tmp/riskfate-godot/templates/templates/. "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
+          godot --headless --version | tee /tmp/riskfate-godot/version.txt
+          grep -q '4.7.2.stable' /tmp/riskfate-godot/version.txt
+
+      - name: Import source assets
+        run: godot --headless --path . --import
+
+      - name: Parse scene and run smoke test
+        run: godot --headless --path . --quit-after 6
+
+      - name: Export HTML5
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          godot --headless --path . --export-release Web dist/index.html
+          test -s dist/index.html
+          test -s dist/index.wasm
+          test -s dist/index.pck
+          touch dist/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy web build
+        id: deployment
+        uses: actions/deploy-pages@v4
