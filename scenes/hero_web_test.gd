@@ -21,6 +21,7 @@ var _mouse_direction := Vector2i.ZERO
 var _touches: Dictionary = {}
 var _facing_index := 0
 var _zoom_level := 4
+var _ui: Control
 var _header: VBoxContainer
 var _pad: GridContainer
 var _pad_buttons: Array[Button] = []
@@ -154,8 +155,11 @@ func _make_button(caption: String, minimum: Vector2) -> Button:
 
 
 func _build_ui() -> void:
+    _ui = Control.new()
+    _ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(_ui)
     _header = VBoxContainer.new()
-    add_child(_header)
+    _ui.add_child(_header)
     var title := Label.new()
     title.text = "RISKFATE · RF-DEV-001"
     title.add_theme_font_size_override("font_size", 16)
@@ -177,7 +181,7 @@ func _build_ui() -> void:
     _pad.columns = 3
     _pad.add_theme_constant_override("h_separation", 4)
     _pad.add_theme_constant_override("v_separation", 4)
-    add_child(_pad)
+    _ui.add_child(_pad)
     for direction in [
         Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1),
         Vector2i(-1, 0), Vector2i.ZERO, Vector2i(1, 0),
@@ -201,7 +205,7 @@ func _build_ui() -> void:
     _hint.add_theme_font_size_override("font_size", 13)
     _hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     _hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    add_child(_hint)
+    _ui.add_child(_hint)
 
 
 func _mouse_pressed(direction: Vector2i) -> void:
@@ -218,29 +222,34 @@ func _layout() -> void:
     if _header == null:
         return
     _clear_touch()
-    var margin := 8.0
+    # Scale only UI for high-DPI phones; the game render target stays native-sized.
+    var ui_scale := maxf(0.5, DisplayServer.screen_get_scale()) if OS.has_feature("web") else 1.0
+    var logical_size := size / ui_scale
+    _ui.scale = Vector2.ONE * ui_scale
+    _ui.size = logical_size
+    var margin := 6.0
     var header_height := ceilf(_header.get_combined_minimum_size().y) + margin * 2.0
     var pad_size := Vector2(164, 164)
     _header.position = Vector2(margin, margin)
-    _header.size = Vector2(size.x - margin * 2.0, header_height - margin)
+    _header.size = Vector2(logical_size.x - margin * 2.0, header_height - margin)
     var area: Rect2
-    if size.x > size.y:
+    if logical_size.x > logical_size.y:
         _pad.position = Vector2(margin, header_height)
         _pad.size = pad_size
         _hint.position = Vector2(margin, header_height + pad_size.y + margin)
-        _hint.size = Vector2(pad_size.x, maxf(0.0, size.y - _hint.position.y - margin))
+        _hint.size = Vector2(pad_size.x, maxf(0.0, logical_size.y - _hint.position.y - margin))
         area = Rect2(pad_size.x + margin * 2.0, header_height,
-            maxf(1.0, size.x - pad_size.x - margin * 3.0), maxf(1.0, size.y - header_height - margin))
+            maxf(1.0, logical_size.x - pad_size.x - margin * 3.0), maxf(1.0, logical_size.y - header_height - margin))
     else:
-        _pad.position = Vector2(margin, size.y - pad_size.y - margin)
+        _pad.position = Vector2(margin, logical_size.y - pad_size.y - margin)
         _pad.size = pad_size
         _hint.position = Vector2(pad_size.x + margin * 2.0, _pad.position.y)
-        _hint.size = Vector2(maxf(1.0, size.x - _hint.position.x - margin), pad_size.y)
-        area = Rect2(margin, header_height, maxf(1.0, size.x - margin * 2.0),
+        _hint.size = Vector2(maxf(1.0, logical_size.x - _hint.position.x - margin), pad_size.y)
+        area = Rect2(margin, header_height, maxf(1.0, logical_size.x - margin * 2.0),
             maxf(1.0, _pad.position.y - header_height - margin))
     # Native-sized render target: no viewport stretch, texture scaling or CSS shell.
-    world_view.position = area.position.round()
-    world.size = Vector2i(area.size.floor())
-    world_view.size = area.size.floor()
+    world_view.position = (area.position * ui_scale).round()
+    world.size = Vector2i((area.size * ui_scale).floor())
+    world_view.size = Vector2(world.size)
     _refresh_status()
     grid.queue_redraw()
