@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 
 const url = process.argv[2];
-assert(url?.startsWith('https://levian47.github.io/riskfate/'));
+assert(url?.startsWith('https://levian47.github.io/riskfate/') || url === 'http://127.0.0.1:8000/');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const output = '/tmp/riskfate-browser-check';
 await mkdir(output, { recursive: true });
@@ -18,7 +18,7 @@ for (const name of ['index.html', 'index.js', 'index.wasm', 'index.pck']) {
     assert(response.headers.get('content-type')?.includes('application/wasm'));
   }
   if (name.endsWith('.pck')) assert.equal(bytes.subarray(0, 4).toString(), 'GDPC');
-  console.log('PASS: published file', name, bytes.length, response.headers.get('content-type'));
+  console.log('PASS: Web file', name, bytes.length, response.headers.get('content-type'));
 }
 
 const chrome = spawn('google-chrome', [

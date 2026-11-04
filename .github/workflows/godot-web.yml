@@ -77,6 +77,24 @@ jobs:
           test -s dist/index.pck
           touch dist/.nojekyll
 
+      - name: Verify Web build in Chrome before publishing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8000 --directory dist > /tmp/riskfate-http.log 2>&1 &
+          riskfate_http_pid=$!
+          trap 'kill "$riskfate_http_pid"' EXIT
+          sleep 1
+          node .github/scripts/check-web.mjs http://127.0.0.1:8000/
+
+      - name: Upload build browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riskfate-browser-check
+          path: /tmp/riskfate-browser-check
+          if-no-files-found: ignore
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
@@ -85,7 +103,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -104,10 +122,10 @@ jobs:
           RISKFATE_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: node .github/scripts/check-web.mjs "$RISKFATE_PAGE_URL"
 
-      - name: Upload browser screenshots
+      - name: Upload published browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: riskfate-browser-check
+          name: riskfate-published-browser-check
           path: /tmp/riskfate-browser-check
           if-no-files-found: ignore
