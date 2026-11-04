@@ -175,7 +175,7 @@ func _build_ui() -> void:
         var button := _make_button("×%d" % level, Vector2(48, 48))
         toolbar.add_child(button)
         button.pressed.connect(_set_zoom.bind(level))
-    var turn := _make_button("Ракурс ↻", Vector2(100, 48))
+    var turn := _make_button("Ракурс", Vector2(100, 48))
     toolbar.add_child(turn)
     turn.pressed.connect(_next_facing)
 
