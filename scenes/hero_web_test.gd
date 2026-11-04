@@ -114,12 +114,13 @@ func _physics_process(delta: float) -> void:
 
 
 func _set_facing(direction: Vector2) -> void:
-    var discrete := Vector2i(int(signf(direction.x)), int(signf(direction.y)))
-    var frame_index := DIRECTIONS.find(discrete)
-    if frame_index >= 0:
-        _facing_index = frame_index
-        hero.frame = frame_index
-        _refresh_status()
+    if direction.is_zero_approx():
+        return
+    # Equal 45-degree sectors select the nearest view; movement remains analog.
+    var frame_index := posmod(2 - int(roundf(direction.angle() / (PI / 4.0))), 8)
+    _facing_index = frame_index
+    hero.frame = frame_index
+    _refresh_status()
 
 
 func _next_facing() -> void:
