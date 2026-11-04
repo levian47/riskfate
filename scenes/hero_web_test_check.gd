@@ -37,7 +37,8 @@ func _run() -> void:
     await process_frame
     scene.set_physics_process(false)
     var atlas := Image.load_from_file("res://assets_source/character_sprites/base_hero_v1/riskfate_hero_8dir_atlas_384x64.png")
-    var runtime := Image.load_from_file("res://characters/player/base_hero/hero_8dir.png")
+    var runtime := Image.new()
+    runtime.load_png_from_buffer(FileAccess.get_file_as_bytes("res://characters/player/base_hero/hero_8dir.png"))
     _check(FileAccess.get_file_as_bytes("res://assets_source/character_sprites/base_hero_v1/riskfate_hero_8dir_atlas_384x64.png") ==
         FileAccess.get_file_as_bytes("res://characters/player/base_hero/hero_8dir.png"), "runtime atlas is byte-identical to approved PNG")
     _check(runtime.get_size() == Vector2i(384, 64), "atlas size is 384x64")
@@ -62,6 +63,7 @@ func _run() -> void:
     scene._physics_process(1.0)
     _key(KEY_RIGHT, false)
     var straight: float = scene._world_position.distance_to(origin)
+    _check(is_equal_approx(straight, scene.WALK_SPEED), "arrow key produces expected movement")
     origin = scene._world_position
     _key(KEY_W, true)
     _key(KEY_D, true)

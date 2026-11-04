@@ -71,13 +71,13 @@ func _pad_direction_at(point: Vector2) -> Vector2i:
 
 func _movement_direction() -> Vector2:
     var direction := Vector2.ZERO
-    if Input.is_key_pressed(KEY_LEFT) or Input.is_physical_key_pressed(KEY_A):
+    if Input.is_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_A):
         direction.x -= 1.0
-    if Input.is_key_pressed(KEY_RIGHT) or Input.is_physical_key_pressed(KEY_D):
+    if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_D):
         direction.x += 1.0
-    if Input.is_key_pressed(KEY_UP) or Input.is_physical_key_pressed(KEY_W):
+    if Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_W):
         direction.y -= 1.0
-    if Input.is_key_pressed(KEY_DOWN) or Input.is_physical_key_pressed(KEY_S):
+    if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_S):
         direction.y += 1.0
     if not _touches.is_empty():
         direction = Vector2(_touches.values().back())
@@ -122,7 +122,7 @@ func _set_zoom(level: int) -> void:
 
 func _refresh_status() -> void:
     if _status_label != null:
-        _status_label.text = "Напрямок: %s   Масштаб: ×%d   Сітка: 32×32 (тест)" % [
+        _status_label.text = "%s · ×%d · сітка 32×32 (тест)" % [
             DIRECTION_NAMES[_facing_index], _zoom_level
         ]
     if _hint != null:
@@ -219,7 +219,7 @@ func _layout() -> void:
         return
     _clear_touch()
     var margin := 8.0
-    var header_height := 104.0
+    var header_height := ceilf(_header.get_combined_minimum_size().y) + margin * 2.0
     var pad_size := Vector2(164, 164)
     _header.position = Vector2(margin, margin)
     _header.size = Vector2(size.x - margin * 2.0, header_height - margin)
