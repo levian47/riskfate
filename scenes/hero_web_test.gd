@@ -29,6 +29,7 @@ var _header: VBoxContainer
 var _joystick: Control
 var _status_label: Label
 var _hint: Label
+var _scene_switch: Button
 
 
 func _ready() -> void:
@@ -176,9 +177,16 @@ func _build_ui() -> void:
     _header = VBoxContainer.new()
     _ui.add_child(_header)
     var title := Label.new()
-    title.text = "RISKFATE · RF-DEV-001"
+    title.text = "RISKFATE"
     title.add_theme_font_size_override("font_size", 16)
     _header.add_child(title)
+    _scene_switch = _make_button("Поселення", Vector2(128, 28))
+    _scene_switch.add_theme_font_size_override("font_size", 14)
+    _ui.add_child(_scene_switch)
+    _scene_switch.pressed.connect(func():
+        _clear_touch()
+        get_tree().change_scene_to_file("res://world/locations/settlement_test.tscn")
+    )
     _status_label = Label.new()
     _status_label.add_theme_font_size_override("font_size", 13)
     _header.add_child(_status_label)
@@ -216,6 +224,8 @@ func _layout() -> void:
     var logical_size := size / ui_scale
     _ui.scale = Vector2.ONE * ui_scale
     _ui.size = logical_size
+    _scene_switch.position = Vector2(logical_size.x - 134, 6)
+    _scene_switch.size = Vector2(128, 28)
     var margin := 6.0
     var header_height := ceilf(_header.get_combined_minimum_size().y) + margin * 2.0
     var pad_size := Vector2(156, 156) if _show_joystick else Vector2.ZERO

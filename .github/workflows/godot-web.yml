@@ -8,6 +8,7 @@ on:
       - 'export_presets.cfg'
       - 'scenes/**'
       - 'characters/**'
+      - 'world/**'
       - '.github/workflows/godot-web.yml'
       - '.github/scripts/**'
   workflow_dispatch:
@@ -58,6 +59,13 @@ jobs:
           set -euo pipefail
           godot --headless --path . --script res://scenes/hero_web_test_check.gd 2>&1 | tee /tmp/riskfate-checks.log
           if grep -E 'SCRIPT ERROR:|ERROR:' /tmp/riskfate-checks.log; then exit 1; fi
+
+      - name: Check settlement terrain, resources, collisions and sorting
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --script res://world/locations/settlement_test_check.gd 2>&1 | tee /tmp/riskfate-settlement-checks.log
+          if grep -E 'SCRIPT ERROR:|ERROR:' /tmp/riskfate-settlement-checks.log; then exit 1; fi
 
       - name: Run main scene smoke test
         shell: bash

@@ -3,7 +3,7 @@ config_version=5
 [application]
 
 config/name="Riskfate"
-run/main_scene="res://scenes/hero_web_test.tscn"
+run/main_scene="res://world/locations/settlement_test.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]

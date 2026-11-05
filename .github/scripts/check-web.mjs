@@ -171,13 +171,68 @@ try {
     const stopped = await screenshot();
     assert.equal(await screenshot(), stopped, description);
   }
+  async function click(x, y) {
+    await call('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
+    await call('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
+    await call('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 0, y: 0 });
+    await pause(400);
+  }
+  async function holdKey(key, code, virtualKey, ms) {
+    await call('Input.dispatchKeyEvent', { type: 'keyDown', key, code, windowsVirtualKeyCode: virtualKey });
+    await pause(ms);
+    await call('Input.dispatchKeyEvent', { type: 'keyUp', key, code, windowsVirtualKeyCode: virtualKey });
+    await pause(150);
+  }
+  // Compare actual Web pixels with existing PNGs, including nearest scaling.
+  // Clipped edges are ignored; opaque source pixels must otherwise match exactly.
+  async function spriteMatch(shot, file, origin, scale = 1, region = null) {
+    const source = (await readFile(file)).toString('base64');
+    const compare = async ({ shot, source, origin, scale, region }) => {
+      async function decode(encoded) {
+        const bitmap = await createImageBitmap(await (await fetch('data:image/png;base64,' + encoded)).blob());
+        const context = new OffscreenCanvas(bitmap.width, bitmap.height).getContext('2d');
+        context.drawImage(bitmap, 0, 0);
+        return context.getImageData(0, 0, bitmap.width, bitmap.height);
+      }
+      const screen = await decode(shot), png = await decode(source);
+      const [rx, ry, rw, rh] = region ?? [0, 0, png.width, png.height];
+      let best = 0;
+      for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+        let hits = 0, total = 0;
+        for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
+          const src = ((ry + y) * png.width + rx + x) * 4;
+          const sx = origin[0] + dx + x * scale, sy = origin[1] + dy + y * scale;
+          if (png.data[src + 3] !== 255 || sx < 6 || sx + scale > screen.width - 6 || sy < 110 || sy + scale > 632) continue;
+          for (let py = 0; py < scale; py++) for (let px = 0; px < scale; px++) {
+            const dst = ((sy + py) * screen.width + sx + px) * 4;
+            total++;
+            if (screen.data[dst] === png.data[src] && screen.data[dst + 1] === png.data[src + 1] &&
+                screen.data[dst + 2] === png.data[src + 2]) hits++;
+          }
+        }
+        if (total > 64) best = Math.max(best, hits / total);
+      }
+      return best;
+    };
+    return evaluate('(' + compare.toString() + ')(' + JSON.stringify({ shot, source, origin, scale, region }) + ')');
+  }
   await call('Page.enable');
   await call('Runtime.enable');
   await loadGame(false);
+  // The new main scene must work on desktop before entering the original lab.
+  await metrics(1280, 720, 1, false);
+  await pause(400);
+  console.log('RF_SETTLEMENT_DESKTOP_BASE64:' + await screenshot('settlement-desktop', true));
+  await holdKey('ArrowRight', 'ArrowRight', 39, 300);
+  await assertStopped('settlement desktop key release stops physics');
+  await metrics(480, 800, 1, false);
+  await pause(400);
+  await click(410, 20); // Settlement -> original hero laboratory.
   assert.equal(await evaluate("'ontouchstart' in window"), false, 'desktop touch capability disabled');
   await assertKnob(false);
-  const desktopInitial = await screenshot('desktop-no-joystick');
+  await screenshot('desktop-no-joystick');
   for (const [key, code, virtualKey] of [['ArrowRight', 'ArrowRight', 39], ['w', 'KeyW', 87]]) {
+    const desktopInitial = await screenshot();
     await call('Input.dispatchKeyEvent', { type: 'keyDown', key, code, windowsVirtualKeyCode: virtualKey });
     await pause(300);
     await call('Input.dispatchKeyEvent', { type: 'keyUp', key, code, windowsVirtualKeyCode: virtualKey });
@@ -187,6 +242,60 @@ try {
   console.log('PASS: Web desktop hides joystick; arrow and WASD controls work');
 
   await loadGame(true);
+  await assertKnob(true);
+  const settlement = await screenshot('settlement-portrait', true);
+  console.log('RF_SETTLEMENT_MOBILE_BASE64:' + settlement);
+  for (const [file, origin, region] of [
+    ['world/environment/settlement_v1/tree_large.png', [-64, 213]],
+    ['world/environment/settlement_v1/well.png', [304, 219]],
+    ['world/environment/settlement_v1/fence_horizontal.png', [-20, 513]],
+    ['world/tilesets/settlement_v1/grass_32.png', [298, 177]],
+    ['world/tilesets/settlement_v1/dirt_32.png', [170, 401]],
+    ['world/tilesets/settlement_v1/dirt_grass_47_atlas.png', [202, 113], [128, 32, 32, 32]]
+  ]) {
+    assert.equal(await spriteMatch(settlement, file, origin, 1, region), 1, 'settlement rendered original pixels: ' + file);
+  }
+  // At spawn the nearby western tree is safely reachable above its root.
+  // The camera follows the feet; the hero stays at the same screen coordinates.
+  const heroAtlas = 'characters/player/base_hero/hero_8dir.png';
+  await holdKey('ArrowLeft', 'ArrowLeft', 37, 1900);
+  assert(await spriteMatch(await screenshot('settlement-behind-tree', true), heroAtlas,
+    [216, 339], 1, [6 * 48, 0, 48, 64]) < 0.6, 'tree canopy occludes hero behind it');
+  await holdKey('ArrowRight', 'ArrowRight', 39, 700);
+  await holdKey('ArrowDown', 'ArrowDown', 40, 1200);
+  await holdKey('ArrowLeft', 'ArrowLeft', 37, 700);
+  assert.equal(await spriteMatch(await screenshot('settlement-front-tree', true), heroAtlas,
+    [216, 339], 1, [6 * 48, 0, 48, 64]), 1, 'hero renders in front of tree after walking around root');
+  await assertStopped('settlement physics stops after release');
+  // Reload for a repeatable mobile input/rotation/scale matrix in the real location.
+  await loadGame(true);
+  for (const [width, height, dpr] of [[480, 800, 1], [800, 480, 1], [390, 844, 2]]) {
+    await metrics(width, height, dpr);
+    await pause(400);
+    for (const [index, zoom] of [1, 2, 4, 8].entries()) {
+      await tap(32 + index * 52, 80);
+      await screenshot('settlement-' + width + 'x' + height + '-dpr' + dpr + '-zoom' + zoom);
+    }
+    await assertKnob(true, width, height, dpr);
+    const before = await screenshot();
+    await touch('touchStart', 124, height - 84);
+    await touch('touchEnd');
+    assert.notEqual(await screenshot(), before, 'settlement joystick moves player at DPR ' + dpr);
+    await assertStopped('settlement joystick release after resize');
+  }
+  await loadGame(true);
+  await touch('touchStart', 138, 716);
+  await metrics(800, 480, 1);
+  await pause(400);
+  await assertStopped('settlement rotation clears held input');
+  await touch('touchEnd');
+  await touch('touchStart', 138, 396);
+  await evaluate("document.getElementById('canvas').blur()");
+  await assertStopped('settlement focus loss stops physics player');
+  await touch('touchEnd');
+  await loadGame(true);
+  await tap(410, 20); // Settlement -> original laboratory regression tests below.
+  console.log('PASS: settlement original terrain/prop pixels, tree occlusion, desktop/mobile physics, zooms, rotation and focus');
   assert.equal(await evaluate("'ontouchstart' in window"), true, 'mobile touch capability enabled');
   await assertKnob(true);
   console.log('PASS: Godot Web shows joystick only with touchscreen capability');
