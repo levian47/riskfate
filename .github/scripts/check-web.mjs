@@ -274,21 +274,25 @@ try {
   assert(await spriteMatch(await screenshot('settlement-behind-tree', true), heroAtlas,
     [216, 339], 1, [6 * 48, 0, 48, 64]) < 0.6, 'tree canopy occludes hero behind it');
   await holdKey('ArrowRight', 'ArrowRight', 39, 700);
-  await holdKey('ArrowDown', 'ArrowDown', 40, 1200);
+  await holdKey('ArrowDown', 'ArrowDown', 40, 900);
   await holdKey('ArrowLeft', 'ArrowLeft', 37, 700);
-  assert.equal(await spriteMatch(await screenshot('settlement-front-tree', true), heroAtlas,
-    [216, 339], 1, [6 * 48, 0, 48, 64]), 1, 'hero renders in front of tree after walking around root');
+  const frontTree = await screenshot('settlement-front-tree', true);
+  const treeFrontMatch = await spriteMatch(frontTree, heroAtlas, [216, 339], 1, [6 * 48, 0, 48, 64]);
+  if (treeFrontMatch !== 1) console.log('RF_FAILURE_BASE64:' + frontTree);
+  assert.equal(treeFrontMatch, 1, 'hero renders in front of tree after walking around root');
   await assertStopped('settlement physics stops after release');
   await loadGame(true);
   // Use the gate to approach the same horizontal fence from each side.
   await holdKey('ArrowDown', 'ArrowDown', 40, 1800);
-  await holdKey('ArrowRight', 'ArrowRight', 39, 1720);
+  await holdKey('ArrowLeft', 'ArrowLeft', 37, 1160);
   await holdKey('ArrowUp', 'ArrowUp', 38, 1000);
-  assert.equal(await spriteMatch(await screenshot('settlement-front-fence', true), heroAtlas,
-    [216, 339], 1, [4 * 48, 0, 48, 64]), 1, 'hero renders in front of fence at collision stop');
-  await holdKey('ArrowLeft', 'ArrowLeft', 37, 1920);
+  const frontFence = await screenshot('settlement-front-fence', true);
+  const fenceFrontMatch = await spriteMatch(frontFence, heroAtlas, [216, 339], 1, [4 * 48, 0, 48, 64]);
+  if (fenceFrontMatch !== 1) console.log('RF_FAILURE_BASE64:' + frontFence);
+  assert.equal(fenceFrontMatch, 1, 'hero renders in front of fence at collision stop');
+  await holdKey('ArrowRight', 'ArrowRight', 39, 1160);
   await holdKey('ArrowUp', 'ArrowUp', 38, 1000);
-  await holdKey('ArrowRight', 'ArrowRight', 39, 1920);
+  await holdKey('ArrowLeft', 'ArrowLeft', 37, 1160);
   await holdKey('ArrowDown', 'ArrowDown', 40, 2000);
   assert(await spriteMatch(await screenshot('settlement-behind-fence', true), heroAtlas,
     [216, 339], 1, [0, 0, 48, 64]) < 0.99, 'fence occludes lower hero pixels from behind');
