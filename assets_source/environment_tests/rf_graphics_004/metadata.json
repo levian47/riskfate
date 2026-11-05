@@ -39,42 +39,6 @@
     "#ffeb94"
   ],
   "objects": {
-    "house": {
-      "file": "assets_source/environment_tests/rf_graphics_004/rejected/house_test_v1.png",
-      "canvas": [
-        320,
-        320
-      ],
-      "visible_bbox": [
-        16,
-        13,
-        304,
-        316
-      ],
-      "pivot": [
-        160,
-        316
-      ],
-      "collision_polygon_test": [
-        [
-          34,
-          110
-        ],
-        [
-          286,
-          110
-        ],
-        [
-          286,
-          316
-        ],
-        [
-          34,
-          316
-        ]
-      ],
-      "status": "REJECTED; historical preview only"
-    },
     "tree_large": {
       "file": "world/environment/settlement_v1/tree_large.png",
       "canvas": [

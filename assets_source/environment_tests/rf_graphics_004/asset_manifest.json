@@ -33,16 +33,6 @@
       "mode": "RGBA"
     },
     {
-      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_test_v1.png",
-      "role": "REJECTED: historical house; never integrate",
-      "bytes": 20819,
-      "sha256": "86d584f47ef850d434ab4896bc5eb7c68e4b0ea032a32b21c737028da55633a8",
-      "git_blob_sha": "afafa3862d37d4d698b22154956bfaa8fd8bc730",
-      "width": 320,
-      "height": 320,
-      "mode": "RGBA"
-    },
-    {
       "path": "world/environment/settlement_v1/tree_large.png",
       "role": "TEST: prepared candidate for integration; not Godot-validated",
       "bytes": 8508,
@@ -98,16 +88,6 @@
       "bytes": 6296,
       "sha256": "735a99deec900d973c02a3a9566b7d65da329c34e0b08be4955daa10f0077944",
       "git_blob_sha": "5dc0e34f894ec21324bced0ec92e445d482340a6"
-    },
-    {
-      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_test_v2.png",
-      "role": "REJECTED: partial contour fix; never integrate",
-      "bytes": 20630,
-      "sha256": "4fe11efcd818a78af7d52c7999f611a728f3fed23d33db268c26884877f8bd34",
-      "git_blob_sha": "d06938db0c843b93c73b4e7c7a71b51d631d7bfa",
-      "width": 320,
-      "height": 320,
-      "mode": "RGBA"
     },
     {
       "path": "assets_source/environment_tests/rf_graphics_004/review/control_scene_native.png",
@@ -204,26 +184,6 @@
       "git_blob_sha": "ff871785ca4e4770f2bf382a030c8e6069de17d8",
       "width": 1774,
       "height": 887,
-      "mode": "RGBA"
-    },
-    {
-      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_attempt_1_source.png",
-      "role": "REJECTED source; never integrate",
-      "bytes": 934836,
-      "sha256": "1b3d90d61fd7df1baa4b65499b6feb3e06f747103e5825d49f0d6bee721a896a",
-      "git_blob_sha": "7a6af5ca1640d4067b9476c51bd42e5e226e1a94",
-      "width": 1229,
-      "height": 1280,
-      "mode": "RGBA"
-    },
-    {
-      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_attempt_2_source.png",
-      "role": "REJECTED source; never integrate",
-      "bytes": 1146779,
-      "sha256": "efb5212d5612bb83e57daabf61b738a6ba14fda4f50020d985cbfd468fd1f0a3",
-      "git_blob_sha": "45f19994e7e97981c6c521a398ba24cd84df3202",
-      "width": 1254,
-      "height": 1254,
       "mode": "RGBA"
     },
     {
