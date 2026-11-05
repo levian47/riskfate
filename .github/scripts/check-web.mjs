@@ -252,9 +252,9 @@ try {
     ['world/environment/settlement_v1/tree_large.png', [-64, 213]],
     ['world/environment/settlement_v1/well.png', [304, 219]],
     ['world/environment/settlement_v1/fence_horizontal.png', [-20, 513]],
-    ['world/tilesets/settlement_v1/grass_32.png', [298, 177]],
-    ['world/tilesets/settlement_v1/dirt_32.png', [170, 401]],
-    ['world/tilesets/settlement_v1/dirt_grass_47_atlas.png', [202, 113], [128, 32, 32, 32]]
+    ['world/tilesets/settlement_v1/grass_32.png', [304, 177]],
+    ['world/tilesets/settlement_v1/dirt_32.png', [176, 401]],
+    ['world/tilesets/settlement_v1/dirt_grass_47_atlas.png', [208, 113], [128, 32, 32, 32]]
   ]) {
     assert.equal(await spriteMatch(settlement, file, origin, 1, region), 1, 'settlement rendered original pixels: ' + file);
   }
