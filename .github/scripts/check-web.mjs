@@ -55,7 +55,9 @@ try {
     } else if (message.method === 'Runtime.exceptionThrown') {
       errors.push(JSON.stringify(message.params));
     } else if (message.method === 'Runtime.consoleAPICalled' && message.params.type === 'error') {
-      errors.push(message.params.args.map(value => value.value ?? value.description).join(' '));
+      const error = message.params.args.map(value => value.value ?? value.description).join(' ');
+      errors.push(error);
+      console.error('Godot Web:', error);
     }
   });
   function call(method, params = {}) {
@@ -112,6 +114,7 @@ try {
     assert(started, 'Godot did not finish loading: ' + errors.join('\n'));
     assert.equal(await evaluate('GODOT_THREADS_ENABLED'), false, 'single-thread Web build');
     await pause(500);
+    assert.deepEqual(errors, [], 'Godot Web startup errors');
   }
   // Decode test screenshots using browser APIs; no game hooks or image packages.
   async function inspectImage(shot, frame = null, point = null) {
@@ -258,6 +261,15 @@ try {
   // At spawn the nearby western tree is safely reachable above its root.
   // The camera follows the feet; the hero stays at the same screen coordinates.
   const heroAtlas = 'characters/player/base_hero/hero_8dir.png';
+  for (const [index, zoom] of [1, 2, 4, 8].entries()) {
+    await tap(32 + index * 52, 80);
+    const shot = await screenshot('settlement-pixels-zoom' + zoom, true);
+    assert.equal(await spriteMatch(shot, heroAtlas, [240 - 24 * zoom, 371 - 32 * zoom],
+      zoom, [0, 0, 48, 64]), 1, 'settlement hero exact nearest pixel blocks at zoom ' + zoom);
+    if (zoom === 2) assert.equal(await spriteMatch(shot, 'world/environment/settlement_v1/well.png',
+      [368, 67], 2), 1, 'settlement well exact 2x pixel blocks');
+  }
+  await tap(32, 80);
   await holdKey('ArrowLeft', 'ArrowLeft', 37, 1900);
   assert(await spriteMatch(await screenshot('settlement-behind-tree', true), heroAtlas,
     [216, 339], 1, [6 * 48, 0, 48, 64]) < 0.6, 'tree canopy occludes hero behind it');

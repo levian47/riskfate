@@ -85,6 +85,13 @@ jobs:
           test -s dist/index.pck
           touch dist/.nojekyll
 
+      - name: Load the actual exported pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --main-pack dist/index.pck --quit-after 6 2>&1 | tee /tmp/riskfate-exported-pack.log
+          if grep -E 'SCRIPT ERROR:|ERROR:' /tmp/riskfate-exported-pack.log; then exit 1; fi
+
       - name: Verify Web build in Chrome before publishing
         shell: bash
         run: |
