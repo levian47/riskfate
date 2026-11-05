@@ -1,0 +1,380 @@
+{
+  "palette_test": [
+    "#211f22",
+    "#34302c",
+    "#493a30",
+    "#604332",
+    "#795038",
+    "#975c3b",
+    "#b57445",
+    "#d28f50",
+    "#e1ad6a",
+    "#442b26",
+    "#61352a",
+    "#7a3e2d",
+    "#944b32",
+    "#ad5b38",
+    "#c77144",
+    "#da8a52",
+    "#49494b",
+    "#62615e",
+    "#7d7b72",
+    "#999487",
+    "#b6ae99",
+    "#d1c5a9",
+    "#e4d7b7",
+    "#25382a",
+    "#304a2c",
+    "#405e30",
+    "#527332",
+    "#678934",
+    "#81a23d",
+    "#9ab447",
+    "#b3c55b",
+    "#7e481e",
+    "#ad681e",
+    "#d58a24",
+    "#efac31",
+    "#ffd35b",
+    "#ffeb94"
+  ],
+  "objects": {
+    "house": {
+      "file": "assets_source/environment_tests/rf_graphics_004/rejected/house_test_v1.png",
+      "canvas": [
+        320,
+        320
+      ],
+      "visible_bbox": [
+        16,
+        13,
+        304,
+        316
+      ],
+      "pivot": [
+        160,
+        316
+      ],
+      "collision_polygon_test": [
+        [
+          34,
+          110
+        ],
+        [
+          286,
+          110
+        ],
+        [
+          286,
+          316
+        ],
+        [
+          34,
+          316
+        ]
+      ],
+      "status": "REJECTED; historical preview only"
+    },
+    "tree_large": {
+      "file": "world/environment/settlement_v1/tree_large.png",
+      "canvas": [
+        224,
+        256
+      ],
+      "visible_bbox": [
+        8,
+        18,
+        216,
+        252
+      ],
+      "pivot": [
+        112,
+        252
+      ],
+      "collision_polygon_test": [
+        [
+          94,
+          229
+        ],
+        [
+          129,
+          229
+        ],
+        [
+          138,
+          245
+        ],
+        [
+          112,
+          252
+        ],
+        [
+          84,
+          245
+        ]
+      ],
+      "status": "TEST / awaiting visual acceptance"
+    },
+    "well": {
+      "file": "world/environment/settlement_v1/well.png",
+      "canvas": [
+        128,
+        160
+      ],
+      "visible_bbox": [
+        8,
+        15,
+        120,
+        156
+      ],
+      "pivot": [
+        64,
+        150
+      ],
+      "collision_polygon_test": [
+        [
+          17,
+          124
+        ],
+        [
+          30,
+          107
+        ],
+        [
+          96,
+          107
+        ],
+        [
+          111,
+          124
+        ],
+        [
+          99,
+          149
+        ],
+        [
+          31,
+          149
+        ]
+      ],
+      "status": "TEST / awaiting visual acceptance"
+    },
+    "fence_horizontal": {
+      "file": "world/environment/settlement_v1/fence_horizontal.png",
+      "canvas": [
+        96,
+        32
+      ],
+      "visible_bbox": [
+        0,
+        0,
+        96,
+        32
+      ],
+      "pivot": [
+        48,
+        32
+      ],
+      "collision_polygon_test": [
+        [
+          0,
+          17
+        ],
+        [
+          96,
+          17
+        ],
+        [
+          96,
+          32
+        ],
+        [
+          0,
+          32
+        ]
+      ],
+      "status": "TEST / awaiting visual acceptance"
+    },
+    "fence_vertical": {
+      "file": "world/environment/settlement_v1/fence_vertical.png",
+      "canvas": [
+        24,
+        64
+      ],
+      "visible_bbox": [
+        0,
+        0,
+        24,
+        64
+      ],
+      "pivot": [
+        12,
+        64
+      ],
+      "collision_polygon_test": [
+        [
+          1,
+          0
+        ],
+        [
+          23,
+          0
+        ],
+        [
+          23,
+          64
+        ],
+        [
+          1,
+          64
+        ]
+      ],
+      "status": "TEST / awaiting visual acceptance"
+    },
+    "fence_corner": {
+      "file": "world/environment/settlement_v1/fence_corner.png",
+      "canvas": [
+        120,
+        96
+      ],
+      "visible_bbox": [
+        0,
+        0,
+        120,
+        96
+      ],
+      "pivot": [
+        108,
+        96
+      ],
+      "collision_polygon_test": [
+        [
+          0,
+          79
+        ],
+        [
+          97,
+          79
+        ],
+        [
+          97,
+          0
+        ],
+        [
+          119,
+          0
+        ],
+        [
+          119,
+          85
+        ],
+        [
+          108,
+          96
+        ],
+        [
+          0,
+          96
+        ]
+      ],
+      "status": "TEST / awaiting visual acceptance"
+    }
+  },
+  "source_main_commit": "78d2d48e64398439410d6efb046b622ee9252677",
+  "source_concept_sha256": "5a4d1a0c8f80e94f01eb5d26243266b40b9c6a77a9ffc434a10d8dfb4426f425",
+  "hero_reference": {
+    "repository_path": "assets_source/character_sprites/base_hero_v1/riskfate_hero_S_48x64.png",
+    "sha256": "6e539e1bc507aeeae9d775222944dad41fad1b1bc04a8304b3156f025dee5caf",
+    "canvas": [
+      48,
+      64
+    ],
+    "pivot": [
+      24,
+      62
+    ],
+    "modified": false
+  },
+  "review_placements": [
+    {
+      "name": "house",
+      "position": [
+        96,
+        24
+      ]
+    },
+    {
+      "name": "tree_large",
+      "position": [
+        680,
+        24
+      ]
+    },
+    {
+      "name": "fence_horizontal",
+      "position": [
+        64,
+        552
+      ]
+    },
+    {
+      "name": "fence_horizontal",
+      "position": [
+        160,
+        552
+      ]
+    },
+    {
+      "name": "fence_horizontal",
+      "position": [
+        256,
+        552
+      ]
+    },
+    {
+      "name": "fence_corner",
+      "position": [
+        352,
+        488
+      ]
+    },
+    {
+      "name": "fence_horizontal",
+      "position": [
+        640,
+        552
+      ]
+    },
+    {
+      "name": "fence_horizontal",
+      "position": [
+        736,
+        552
+      ]
+    },
+    {
+      "name": "fence_corner",
+      "position": [
+        832,
+        488
+      ]
+    },
+    {
+      "name": "fence_vertical",
+      "position": [
+        928,
+        424
+      ]
+    },
+    {
+      "name": "well",
+      "position": [
+        568,
+        328
+      ]
+    }
+  ],
+  "approved_house_reference": "assets_source/environment_concepts/riskfate_house_approved_reference_v1.png",
+  "approved_house_runtime_sprite": "NOT PREPARED; do not substitute old house",
+  "repository_save_authorized": "2026-11-05: save all test-scene assets for subsequent integration; not acceptance in Godot"
+}

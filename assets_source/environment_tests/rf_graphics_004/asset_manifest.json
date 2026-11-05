@@ -1,0 +1,251 @@
+{
+  "status": "Saved for subsequent integration; not integrated",
+  "approved_house_reference": "assets_source/environment_concepts/riskfate_house_approved_reference_v1.png",
+  "assets": [
+    {
+      "path": "world/environment/settlement_v1/fence_corner.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 2191,
+      "sha256": "80bc11235f420e0f778d4a605143735ad6812ba73d4526ee6ac639ac2e8a3e46",
+      "git_blob_sha": "57604f14c0b897dd754d07ae0b63f32389ccac31",
+      "width": 120,
+      "height": 96,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/environment/settlement_v1/fence_horizontal.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 922,
+      "sha256": "1bbb13c3f4c34ba4e0eee2e09a30708bbccbfa58742cd0678a8a4e7f68cf64a3",
+      "git_blob_sha": "fb429950cd68e3530d3ba8844f5476da87c9dccc",
+      "width": 96,
+      "height": 32,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/environment/settlement_v1/fence_vertical.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 606,
+      "sha256": "6ff43b5e56ba023b5e9880aad127095bb785fd2aac09163c70ee86abc77839b7",
+      "git_blob_sha": "a6c227d7fe38824f1676de39d956d91fe6ba4f41",
+      "width": 24,
+      "height": 64,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_test_v1.png",
+      "role": "REJECTED: historical house; never integrate",
+      "bytes": 20819,
+      "sha256": "86d584f47ef850d434ab4896bc5eb7c68e4b0ea032a32b21c737028da55633a8",
+      "git_blob_sha": "afafa3862d37d4d698b22154956bfaa8fd8bc730",
+      "width": 320,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/environment/settlement_v1/tree_large.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 8508,
+      "sha256": "7e7355913770351a07a12e67725be9d278410c664c2fa9c53be2f2d1c4a4d316",
+      "git_blob_sha": "63ad3b102e5885d85ebe38d56125ae446b74f8e3",
+      "width": 224,
+      "height": 256,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/environment/settlement_v1/well.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 5702,
+      "sha256": "453faf51ff7865c88b820ca2545dae33849695c00df4b2dfab5b95167509184b",
+      "git_blob_sha": "85084c776e16d34f45306db3b6145c3326a8319f",
+      "width": 128,
+      "height": 160,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/tilesets/settlement_v1/dirt_32.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 431,
+      "sha256": "778616b83f582c2ea71e63dc2b9893efe2250c00e45b6b3c48e4f0c7b504996b",
+      "git_blob_sha": "bcb400ef6ff7624ba819cb23b10281139dbfa8b5",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/tilesets/settlement_v1/dirt_grass_47_atlas.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 5621,
+      "sha256": "f87eb0acfafdca85adee1bacf0291fec353f6435ef0b777071f4d059b4ecf939",
+      "git_blob_sha": "55a397b59377f2dc87d7d212b3aa092ecbd13b64",
+      "width": 256,
+      "height": 192,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/tilesets/settlement_v1/grass_32.png",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 379,
+      "sha256": "aca9e10a4f2405aa1392f1525bcdcac88b1c81ed56caeaaff21134d86a346244",
+      "git_blob_sha": "ce11ac6509d93905da99782ffa569b2aa12d8151",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA"
+    },
+    {
+      "path": "world/tilesets/settlement_v1/terrain_layout.json",
+      "role": "TEST: prepared candidate for integration; not Godot-validated",
+      "bytes": 6296,
+      "sha256": "735a99deec900d973c02a3a9566b7d65da329c34e0b08be4955daa10f0077944",
+      "git_blob_sha": "5dc0e34f894ec21324bced0ec92e445d482340a6"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_test_v2.png",
+      "role": "REJECTED: partial contour fix; never integrate",
+      "bytes": 20630,
+      "sha256": "4fe11efcd818a78af7d52c7999f611a728f3fed23d33db268c26884877f8bd34",
+      "git_blob_sha": "d06938db0c843b93c73b4e7c7a71b51d631d7bfa",
+      "width": 320,
+      "height": 320,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/review/control_scene_native.png",
+      "role": "HISTORICAL PREVIEW: includes rejected house v1; not current visual target",
+      "bytes": 76348,
+      "sha256": "f18854320e9f6afe8c8c05b5bd5162dfa35a0d806dc4d43cf8dd94fdd9650bad",
+      "git_blob_sha": "3b1b2e9e0f139d992d2186a4333998b669c93f26",
+      "width": 960,
+      "height": 640,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/review/control_scene_nearest_x2.png",
+      "role": "HISTORICAL PREVIEW: includes rejected house v1; not current visual target",
+      "bytes": 111487,
+      "sha256": "2f52d35bdbdf5839deb329b413594afa6df299789c910302cfd89b5a23bbfdd8",
+      "git_blob_sha": "47c61cc251f743565cc3a032d05c203bfae07a89",
+      "width": 1920,
+      "height": 1280,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/review/control_scene_test_collisions.png",
+      "role": "HISTORICAL PREVIEW: includes rejected house v1; not current visual target",
+      "bytes": 77665,
+      "sha256": "d2024ccc2655845fa8c8b4ba2f45988c02f3f7ef4d38619b9308b17f7612b06b",
+      "git_blob_sha": "b451aeb22ba8f51dcfe28f66f06e505ca93c012f",
+      "width": 960,
+      "height": 640,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/review/occlusion_review.png",
+      "role": "HISTORICAL PREVIEW: includes rejected house v1; not current visual target",
+      "bytes": 18657,
+      "sha256": "2e3b5a5bff79f6346decfc0f9499faccbeaa7ffb8ab3c2d235cf734c1b7f21b2",
+      "git_blob_sha": "fe3486dd0cb0f0a7d255198e0dfa07d37fa8ef57",
+      "width": 512,
+      "height": 330,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/review/review.html",
+      "role": "HISTORICAL PREVIEW: includes rejected house v1; not current visual target",
+      "bytes": 207346,
+      "sha256": "001aa4686c8420677f939ac50d8dcb8163aa821e269dbbe429457ca2f2403fe7",
+      "git_blob_sha": "f88ff7686f2ea80f8b9a0e1e4b8a44d765acefcb"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/review/sprite_review.png",
+      "role": "HISTORICAL PREVIEW: includes rejected house v1; not current visual target",
+      "bytes": 82613,
+      "sha256": "841bde59e899067261be064bf773a09e5a580e7b3675125b4cc32b600f022d35",
+      "git_blob_sha": "2d64f92dd269a3157deb3033ab8cf6835a6e6ff4",
+      "width": 1000,
+      "height": 780,
+      "mode": "RGB"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/sources/tree_large_source.png",
+      "role": "Source generation; requires technical processing, not runtime texture",
+      "bytes": 878039,
+      "sha256": "8c76ee52697bfffa8feddef9d27fbac330dc9f842d03027357bdc2acafd0dac8",
+      "git_blob_sha": "f7b8c7d0c706ce208a2b550f98831b6d035d5108",
+      "width": 1190,
+      "height": 1322,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/sources/well_source.png",
+      "role": "Source generation; requires technical processing, not runtime texture",
+      "bytes": 529618,
+      "sha256": "bcd096985d62005c5f6c0e546755fb89fcb0b7a0063538f0a6b8d14d0fc23034",
+      "git_blob_sha": "430d6ca710f5149a6cc1ffde42c9cf7218a265f5",
+      "width": 1176,
+      "height": 1337,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/sources/fence_modules_source.png",
+      "role": "Source generation; requires technical processing, not runtime texture",
+      "bytes": 398448,
+      "sha256": "7c6d7886d3fbd5c931b0425dde47db547b08aeb15d56c3e1280f2b26c12350e0",
+      "git_blob_sha": "f0f66a3e70573047c480efd2c2dc84edd5dbbf4f",
+      "width": 2172,
+      "height": 724,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/sources/ground_materials_source.png",
+      "role": "Source generation; requires technical processing, not runtime texture",
+      "bytes": 1351981,
+      "sha256": "aee8111537811f15948b066ae3f18bca0e2869eab2b3a7def3d8421c00120b2f",
+      "git_blob_sha": "ff871785ca4e4770f2bf382a030c8e6069de17d8",
+      "width": 1774,
+      "height": 887,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_attempt_1_source.png",
+      "role": "REJECTED source; never integrate",
+      "bytes": 934836,
+      "sha256": "1b3d90d61fd7df1baa4b65499b6feb3e06f747103e5825d49f0d6bee721a896a",
+      "git_blob_sha": "7a6af5ca1640d4067b9476c51bd42e5e226e1a94",
+      "width": 1229,
+      "height": 1280,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/rejected/house_attempt_2_source.png",
+      "role": "REJECTED source; never integrate",
+      "bytes": 1146779,
+      "sha256": "efb5212d5612bb83e57daabf61b738a6ba14fda4f50020d985cbfd468fd1f0a3",
+      "git_blob_sha": "45f19994e7e97981c6c521a398ba24cd84df3202",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/historical_report.md",
+      "role": "Metadata / historical evidence",
+      "bytes": 9554,
+      "sha256": "504f29ecc12842095067d8a53dc3d3dddb664761fe0167ebf3f909d0dc84b272",
+      "git_blob_sha": "258d03a1bf6e415ec5f56b73fb87ac5852f7a095"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/historical_verification.json",
+      "role": "Metadata / historical evidence",
+      "bytes": 2994,
+      "sha256": "cd4808a7c6d1b407421692c0dab2dbb995cd5b37b5c4de264b421329e8c78395",
+      "git_blob_sha": "53e0fd7dcbb42a9a5c980ca7ee5581fb145ed12c"
+    },
+    {
+      "path": "assets_source/environment_tests/rf_graphics_004/metadata.json",
+      "role": "Metadata / historical evidence",
+      "bytes": 6160,
+      "sha256": "73a08f0e982a11df46d2ef7af4e650fb7348a99ed012d781f282e5afc1e8b58d",
+      "git_blob_sha": "3d93e73559e5895cab33f4f570e7bd0d06de498b"
+    }
+  ]
+}

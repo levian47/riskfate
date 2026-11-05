@@ -1,0 +1,116 @@
+{
+  "status": "Historical numerical checks PASS; does not establish visual acceptance or Godot readiness",
+  "files": [
+    {
+      "file": "world/environment/settlement_v1/fence_corner.png",
+      "width": 120,
+      "height": 96,
+      "bytes": 2191,
+      "colors_visible": 10,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "80bc11235f420e0f778d4a605143735ad6812ba73d4526ee6ac639ac2e8a3e46"
+    },
+    {
+      "file": "world/environment/settlement_v1/fence_horizontal.png",
+      "width": 96,
+      "height": 32,
+      "bytes": 922,
+      "colors_visible": 9,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "1bbb13c3f4c34ba4e0eee2e09a30708bbccbfa58742cd0678a8a4e7f68cf64a3"
+    },
+    {
+      "file": "world/environment/settlement_v1/fence_vertical.png",
+      "width": 24,
+      "height": 64,
+      "bytes": 606,
+      "colors_visible": 9,
+      "alpha": [
+        255
+      ],
+      "sha256": "6ff43b5e56ba023b5e9880aad127095bb785fd2aac09163c70ee86abc77839b7"
+    },
+    {
+      "file": "assets_source/environment_tests/rf_graphics_004/rejected/house_test_v1.png",
+      "width": 320,
+      "height": 320,
+      "bytes": 20819,
+      "colors_visible": 27,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "86d584f47ef850d434ab4896bc5eb7c68e4b0ea032a32b21c737028da55633a8"
+    },
+    {
+      "file": "world/environment/settlement_v1/tree_large.png",
+      "width": 224,
+      "height": 256,
+      "bytes": 8508,
+      "colors_visible": 15,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "7e7355913770351a07a12e67725be9d278410c664c2fa9c53be2f2d1c4a4d316"
+    },
+    {
+      "file": "world/environment/settlement_v1/well.png",
+      "width": 128,
+      "height": 160,
+      "bytes": 5702,
+      "colors_visible": 26,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "453faf51ff7865c88b820ca2545dae33849695c00df4b2dfab5b95167509184b"
+    },
+    {
+      "file": "world/tilesets/settlement_v1/dirt_32.png",
+      "width": 32,
+      "height": 32,
+      "bytes": 431,
+      "colors_visible": 4,
+      "alpha": [
+        255
+      ],
+      "sha256": "778616b83f582c2ea71e63dc2b9893efe2250c00e45b6b3c48e4f0c7b504996b"
+    },
+    {
+      "file": "world/tilesets/settlement_v1/dirt_grass_47_atlas.png",
+      "width": 256,
+      "height": 192,
+      "bytes": 5621,
+      "colors_visible": 8,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "f87eb0acfafdca85adee1bacf0291fec353f6435ef0b777071f4d059b4ecf939"
+    },
+    {
+      "file": "world/tilesets/settlement_v1/grass_32.png",
+      "width": 32,
+      "height": 32,
+      "bytes": 379,
+      "colors_visible": 4,
+      "alpha": [
+        255
+      ],
+      "sha256": "aca9e10a4f2405aa1392f1525bcdcac88b1c81ed56caeaaff21134d86a346244"
+    }
+  ],
+  "terrain_edge_pairs_checked": 22800,
+  "terrain_masks_seen": 47,
+  "nearest_x2_exact": true,
+  "hero_visible_pixels_unchanged": true,
+  "Godot_tested": false,
+  "physical_smartphone_tested": false
+}
