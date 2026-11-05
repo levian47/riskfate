@@ -180,7 +180,7 @@ func _build_ui() -> void:
     title.text = "RISKFATE"
     title.add_theme_font_size_override("font_size", 16)
     _header.add_child(title)
-    _scene_switch = _make_button("Поселення", Vector2(128, 28))
+    _scene_switch = _make_button("Поселення", Vector2(112, 48))
     _scene_switch.add_theme_font_size_override("font_size", 14)
     _ui.add_child(_scene_switch)
     _scene_switch.pressed.connect(func():
@@ -224,8 +224,8 @@ func _layout() -> void:
     var logical_size := size / ui_scale
     _ui.scale = Vector2.ONE * ui_scale
     _ui.size = logical_size
-    _scene_switch.position = Vector2(logical_size.x - 134, 6)
-    _scene_switch.size = Vector2(128, 28)
+    _scene_switch.position = Vector2(logical_size.x - 118, 6)
+    _scene_switch.size = Vector2(112, 48)
     var margin := 6.0
     var header_height := ceilf(_header.get_combined_minimum_size().y) + margin * 2.0
     var pad_size := Vector2(156, 156) if _show_joystick else Vector2.ZERO

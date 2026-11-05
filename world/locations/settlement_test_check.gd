@@ -66,8 +66,8 @@ func _run() -> void:
             if raw & (1 << bit):
                 scene.dirt_cells[scene.NEIGHBORS[bit]] = true
         for diagonal in [1, 3, 5, 7]:
-            var cardinals := (1 << (diagonal - 1)) | (1 << ((diagonal + 1) % 8))
-            if raw & cardinals != cardinals:
+            var cardinals: int = (1 << (diagonal - 1)) | (1 << ((diagonal + 1) % 8))
+            if (raw & cardinals) != cardinals:
                 expected &= ~(1 << diagonal)
         var mask: int = scene._terrain_mask(Vector2i.ZERO)
         _check(mask == expected and scene.terrain_regions.has(mask), "neighbor mask " + str(raw))
@@ -89,6 +89,12 @@ func _run() -> void:
         "solid dirt matches actual mask-255 atlas pixels")
     var metadata: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
         "res://assets_source/environment_tests/rf_graphics_004/metadata.json"))
+    var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+        "res://assets_source/environment_tests/rf_graphics_004/asset_manifest.json"))
+    for asset in manifest["assets"]:
+        if str(asset["path"]).begins_with("world/"):
+            _check(FileAccess.get_sha256("res://" + asset["path"]) == asset["sha256"],
+                "unchanged original bytes: " + asset["path"])
     for kind in scene.PROPS:
         var source: Dictionary = metadata["objects"][kind]
         var spec: Dictionary = scene.PROPS[kind]
