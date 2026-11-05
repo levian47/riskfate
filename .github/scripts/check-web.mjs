@@ -267,6 +267,19 @@ try {
   assert.equal(await spriteMatch(await screenshot('settlement-front-tree', true), heroAtlas,
     [216, 339], 1, [6 * 48, 0, 48, 64]), 1, 'hero renders in front of tree after walking around root');
   await assertStopped('settlement physics stops after release');
+  await loadGame(true);
+  // Use the gate to approach the same horizontal fence from each side.
+  await holdKey('ArrowDown', 'ArrowDown', 40, 1800);
+  await holdKey('ArrowRight', 'ArrowRight', 39, 1720);
+  await holdKey('ArrowUp', 'ArrowUp', 38, 1000);
+  assert.equal(await spriteMatch(await screenshot('settlement-front-fence', true), heroAtlas,
+    [216, 339], 1, [4 * 48, 0, 48, 64]), 1, 'hero renders in front of fence at collision stop');
+  await holdKey('ArrowLeft', 'ArrowLeft', 37, 1920);
+  await holdKey('ArrowUp', 'ArrowUp', 38, 1000);
+  await holdKey('ArrowRight', 'ArrowRight', 39, 1920);
+  await holdKey('ArrowDown', 'ArrowDown', 40, 2000);
+  assert(await spriteMatch(await screenshot('settlement-behind-fence', true), heroAtlas,
+    [216, 339], 1, [0, 0, 48, 64]) < 0.99, 'fence occludes lower hero pixels from behind');
   // Reload for a repeatable mobile input/rotation/scale matrix in the real location.
   await loadGame(true);
   for (const [width, height, dpr] of [[480, 800, 1], [800, 480, 1], [390, 844, 2]]) {

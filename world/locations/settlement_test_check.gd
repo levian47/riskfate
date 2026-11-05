@@ -83,8 +83,10 @@ func _run() -> void:
         _check(scene.paths.get_cell_atlas_coords(cell) == (Vector2i.ZERO if mask == 255 else scene.terrain_regions[mask]),
             "placed atlas region at " + str(cell))
     _check(sources.has(1) and sources.has(2), "both dirt PNG and transition atlas used")
-    var dirt := Image.load_from_file("res://world/tilesets/settlement_v1/dirt_32.png")
-    var transitions := Image.load_from_file("res://world/tilesets/settlement_v1/dirt_grass_47_atlas.png")
+    var dirt := Image.new()
+    dirt.load_png_from_buffer(FileAccess.get_file_as_bytes("res://world/tilesets/settlement_v1/dirt_32.png"))
+    var transitions := Image.new()
+    transitions.load_png_from_buffer(FileAccess.get_file_as_bytes("res://world/tilesets/settlement_v1/dirt_grass_47_atlas.png"))
     _check(dirt.get_data() == transitions.get_region(Rect2i(192, 160, 32, 32)).get_data(),
         "solid dirt matches actual mask-255 atlas pixels")
     var metadata: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
@@ -135,7 +137,10 @@ func _run() -> void:
     var slow: float = scene.player.position.x - scene.SPAWN.x
     scene.player.position = scene.SPAWN
     await _drive(scene, Vector2.RIGHT, 30)
-    _check(is_equal_approx(scene.player.position.x - scene.SPAWN.x, slow * 2.0), "proportional analog movement with physics")
+    var full: float = scene.player.position.x - scene.SPAWN.x
+    # Float32 world coordinates around 1024 accumulate subpixel rounding during 30 steps.
+    _check(absf(full - slow * 2.0) < 0.05 and absf(full - 50.0) < 0.05,
+        "proportional analog movement with physics: half=%f full=%f" % [slow, full])
     var stopped: Vector2 = scene.player.position
     await _drive(scene, Vector2.ZERO, 10)
     _check(scene.player.position == stopped, "released input stops physics player")
