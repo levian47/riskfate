@@ -99,21 +99,44 @@ func _run() -> void:
                 "unchanged original bytes: " + asset["path"])
     for kind in scene.PROPS:
         var source: Dictionary = metadata["objects"][kind]
+        if kind == "tree_large":
+            source = JSON.parse_string(FileAccess.get_file_as_string(
+                "res://assets_source/environment_tests/rf_graphics_007/tree_metadata.json"))
         var spec: Dictionary = scene.PROPS[kind]
         _check(spec["texture"].get_size() == Vector2(source["canvas"][0], source["canvas"][1]), "texture dimensions: " + kind)
         _check(spec["pivot"] == Vector2(source["pivot"][0], source["pivot"][1]), "metadata anchor: " + kind)
         for index in source["collision_polygon_test"].size():
             var point: Array = source["collision_polygon_test"][index]
             _check(spec["polygon"][index] == Vector2(point[0], point[1]), "metadata collision: " + kind)
+    var tree_image := Image.new()
+    tree_image.load_png_from_buffer(FileAccess.get_file_as_bytes(
+        "res://world/environment/settlement_v1/tree_large_v2.png"))
+    _check(tree_image.get_format() == Image.FORMAT_RGBA8, "v2 is an RGBA texture")
+    _check(tree_image.get_used_rect() == Rect2i(4, 4, 92, 109), "v2 visible size follows test H ratio")
+    var tree_colors: Dictionary = {}
+    var binary_alpha := true
+    for y in tree_image.get_height():
+        for x in tree_image.get_width():
+            var color := tree_image.get_pixel(x, y)
+            binary_alpha = binary_alpha and (color.a == 0.0 or color.a == 1.0)
+            if color.a == 1.0:
+                tree_colors[color] = true
+    _check(binary_alpha, "v2 has no antialiased or semitransparent pixels")
+    _check(tree_colors.size() <= 24, "v2 uses a limited intentional palette")
+    var tree_count := 0
     for prop in scene.actors.get_children():
         if prop == scene.hero:
             continue
         # Multiple instances get generated names; inspect their actual texture instead.
         var sprite: Sprite2D = prop.get_node("Sprite")
+        if sprite.texture.resource_path.ends_with("tree_large_v2.png"):
+            tree_count += 1
+            _check(sprite.offset == Vector2(-50, -113), "v2 uses the new root anchor")
         _check(sprite.scale == Vector2.ONE and sprite.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
             "native pixels on " + str(prop.name))
         _check(prop.position == prop.position.round(), "integer prop foot position")
         _check(prop.get_node("Footprint").polygon.size() >= 4, "prop has foot collision")
+    _check(tree_count == 4, "all four existing trees use v2")
     # Physics queries use the real registered shapes, not rectangles inferred from PNGs.
     _probe(scene, Vector2(832, 970), Vector2(0, -100), "tree_large")
     _probe(scene, Vector2(780, 820), Vector2(100, 0), "") # under canopy, away from root

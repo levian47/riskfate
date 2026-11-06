@@ -249,7 +249,7 @@ try {
   const settlement = await screenshot('settlement-portrait', true);
   console.log('RF_SETTLEMENT_MOBILE_BASE64:' + settlement);
   for (const [file, origin, region] of [
-    ['world/environment/settlement_v1/tree_large.png', [-64, 213]],
+    ['world/environment/settlement_v1/tree_large_v2.png', [-2, 352]],
     ['world/environment/settlement_v1/well.png', [304, 219]],
     ['world/environment/settlement_v1/fence_horizontal.png', [-20, 513]],
     ['world/tilesets/settlement_v1/grass_32.png', [304, 177]],

@@ -9,12 +9,12 @@ const DIRT := preload("res://world/tilesets/settlement_v1/dirt_32.png")
 const TRANSITIONS := preload("res://world/tilesets/settlement_v1/dirt_grass_47_atlas.png")
 const NEIGHBORS := [Vector2i.UP, Vector2i(1, -1), Vector2i.RIGHT,
     Vector2i(1, 1), Vector2i.DOWN, Vector2i(-1, 1), Vector2i.LEFT, Vector2i(-1, -1)]
-# Foot anchors and polygons from RF-GRAPHICS-004 metadata.json, translated below.
+# Foot anchors and polygons from RF-GRAPHICS-004 metadata; tree updated in RF-GRAPHICS-007.
 # Kept in the runtime script so the source-art directory remains excluded from export.
 const PROPS := {
-    "tree_large": {"texture": preload("res://world/environment/settlement_v1/tree_large.png"),
-        "pivot": Vector2(112, 252), "polygon": [Vector2(94, 229), Vector2(129, 229),
-            Vector2(138, 245), Vector2(112, 252), Vector2(84, 245)]},
+    "tree_large": {"texture": preload("res://world/environment/settlement_v1/tree_large_v2.png"),
+        "pivot": Vector2(50, 113), "polygon": [Vector2(43, 104), Vector2(56, 104),
+            Vector2(64, 110), Vector2(50, 113), Vector2(36, 110)]},
     "well": {"texture": preload("res://world/environment/settlement_v1/well.png"),
         "pivot": Vector2(64, 150), "polygon": [Vector2(17, 124), Vector2(30, 107),
             Vector2(96, 107), Vector2(111, 124), Vector2(99, 149), Vector2(31, 149)]},

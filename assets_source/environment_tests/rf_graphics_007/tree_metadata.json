@@ -1,0 +1,79 @@
+{
+  "file": "world/environment/settlement_v1/tree_large_v2.png",
+  "canvas": [
+    100,
+    116
+  ],
+  "visible_bbox": [
+    4,
+    4,
+    96,
+    113
+  ],
+  "pivot": [
+    50,
+    113
+  ],
+  "collision_polygon_test": [
+    [
+      43,
+      104
+    ],
+    [
+      56,
+      104
+    ],
+    [
+      64,
+      110
+    ],
+    [
+      50,
+      113
+    ],
+    [
+      36,
+      110
+    ]
+  ],
+  "hero_visible_height": 58,
+  "visible_width_over_H": 1.5862068965517242,
+  "visible_height_over_H": 1.8793103448275863,
+  "opaque_colors": 15,
+  "alpha_values": [
+    0,
+    255
+  ],
+  "connected_opaque_components": 1,
+  "sha256": "79b3aa3a5934399bc83013dba286cc1ee86bc18799a5f98c52f6e94c4cfd69a2",
+  "status": "TEST / awaiting owner visual acceptance",
+  "concept_measurement": {
+    "method": "manual visible silhouette boxes; approximate +/- 3 px, shadows excluded",
+    "tree_bbox": [
+      20,
+      20,
+      233,
+      261
+    ],
+    "hero_bbox": [
+      641,
+      540,
+      712,
+      668
+    ],
+    "tree_width": 213,
+    "tree_height": 241,
+    "hero_H": 128,
+    "tree_width_over_H": 1.6640625,
+    "tree_height_over_H": 1.8828125
+  },
+  "source_tree_bbox_alpha_ge_128": [
+    200,
+    42,
+    1119,
+    1134
+  ],
+  "source_tree_aspect": 0.8415750915750916,
+  "source_aspect_vs_concept_percent": -4.779531892207944,
+  "scale_selection": "round((241 / 128) * 58) = 109 visible height; round(109 * 919 / 1092) = 92 visible width; provisional"
+}
