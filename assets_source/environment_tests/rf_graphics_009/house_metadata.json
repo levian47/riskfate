@@ -1,0 +1,46 @@
+{
+  "status": "Затверджено власником як окремий PNG; інтеграція не виконана",
+  "base_commit": "35f91a4d1bad3c259a7cbadd35108cd2b2b824a6",
+  "canvas": [
+    173,
+    192
+  ],
+  "visible_bbox_exclusive": [
+    4,
+    4,
+    169,
+    188
+  ],
+  "visible_size": [
+    165,
+    184
+  ],
+  "hero_H": 58,
+  "relative_to_H": [
+    2.8448275862068964,
+    3.1724137931034484
+  ],
+  "pivot": [
+    86,
+    188
+  ],
+  "opaque_colors": 36,
+  "alpha_values": [
+    0,
+    255
+  ],
+  "connected_components_4": 1,
+  "component_pixels": [
+    24576
+  ],
+  "transparent_holes": 0,
+  "png_bytes": 10448,
+  "sha256": "a73b2e7712e67a4625bbf3c6efa73f393fa6540f001154b9d8e9ac439add15ae",
+  "hero_atlas_sha256": "d04265c8164511b0f5f456044f67a8b118d85b6a74a79d1bbf81f2a6c5714a40",
+  "reference_bbox_alpha128": [
+    78,
+    32,
+    1145,
+    1221
+  ]
+}
